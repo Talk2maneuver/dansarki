@@ -1,0 +1,12 @@
+RewriteEngine On
+RewriteBase /dansarki/
+
+# Redirect .php URLs to extensionless URLs (exclude POST to prevent data loss)
+RewriteCond %{REQUEST_METHOD} !POST
+RewriteCond %{THE_REQUEST} \s/dansarki/([^.]+)\.php [NC]
+RewriteRule ^(.*)\.php$ $1 [R=301,L,NC]
+
+# Handle extensionless URLs
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [L]
