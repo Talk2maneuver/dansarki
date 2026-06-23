@@ -33,7 +33,7 @@ if (isset($_POST['update'])) {
     $price = mysqli_real_escape_string($con, $_POST['price']);
     $type = mysqli_real_escape_string($con, $_POST['type']);
     
-    $sql = mysqli_query($con, "UPDATE expense SET item='$item', price='$price', type='$type' WHERE id='$id'");
+    $sql = mysqli_query($con, "UPDATE expense SET item='$item', price='$price', type='$type', sync_status='pending' WHERE id='$id'");
     
     if ($sql) {
         $msg = "Expense updated successfully";
@@ -44,11 +44,11 @@ if (isset($_POST['update'])) {
 
 if (isset($_GET['del']) && isset($_GET['id'])) {
     $id = mysqli_real_escape_string($con, $_GET['id']);
-    mysqli_query($con, "DELETE FROM expense WHERE id = '$id'");
+    mysqli_query($con, "UPDATE expense SET deleted_flag = 1, sync_status = 'pending' WHERE id = '$id'");
 }
 
 // Build the query with filters
-$query = "SELECT * FROM expense WHERE 1=1";
+$query = "SELECT * FROM expense WHERE deleted_flag = 0";
 if ($typeFilter) {
     $query .= " AND type = '$typeFilter'";
 }
@@ -62,7 +62,7 @@ $query .= " ORDER BY creation DESC";
 $sql = mysqli_query($con, $query);
 
 // Calculate totals
-$totalQuery = "SELECT SUM(CASE WHEN type='in' THEN price ELSE 0 END) as total_in, SUM(CASE WHEN type='out' THEN price ELSE 0 END) as total_out FROM expense WHERE 1=1";
+$totalQuery = "SELECT SUM(CASE WHEN type='in' THEN price ELSE 0 END) as total_in, SUM(CASE WHEN type='out' THEN price ELSE 0 END) as total_out FROM expense WHERE deleted_flag = 0";
 if ($from_date && $to_date) {
     $totalQuery .= " AND DATE(creation) BETWEEN '$from_date' AND '$to_date'";
 } else {
@@ -150,7 +150,7 @@ $totals = mysqli_fetch_array($totalResult);
                             <div class="icon text-white"><i class="fas fa-arrow-down"></i></div>
                             <div class="value text-white">₦<?php 
                                 $today = date('Y-m-d');
-                                $t_in = $con->query("SELECT SUM(price) as total FROM expense WHERE Date(creation)='$today' AND type='in'")->fetch_assoc()['total'];
+                                $t_in = $con->query("SELECT SUM(price) as total FROM expense WHERE deleted_flag = 0 AND Date(creation)='$today' AND type='in'")->fetch_assoc()['total'];
                                 echo number_format($t_in ?: 0); 
                             ?></div>
                             <div class="label">Today's In</div>
@@ -161,7 +161,7 @@ $totals = mysqli_fetch_array($totalResult);
                         <div class="stat-card bg-danger">
                             <div class="icon text-white"><i class="fas fa-arrow-up"></i></div>
                             <div class="value text-white">₦<?php 
-                                $t_out = $con->query("SELECT SUM(price) as total FROM expense WHERE Date(creation)='$today' AND type='out'")->fetch_assoc()['total'];
+                                $t_out = $con->query("SELECT SUM(price) as total FROM expense WHERE deleted_flag = 0 AND Date(creation)='$today' AND type='out'")->fetch_assoc()['total'];
                                 echo number_format($t_out ?: 0); 
                             ?></div>
                             <div class="label">Today's Out</div>
@@ -172,7 +172,7 @@ $totals = mysqli_fetch_array($totalResult);
                         <div class="stat-card bg-success">
                             <div class="icon text-white"><i class="fas fa-plus-circle"></i></div>
                             <div class="value text-white">₦<?php 
-                                $total_in = $con->query("SELECT SUM(price) as total FROM expense WHERE type='in'")->fetch_assoc()['total'];
+                                $total_in = $con->query("SELECT SUM(price) as total FROM expense WHERE deleted_flag = 0 AND type='in'")->fetch_assoc()['total'];
                                 echo number_format($total_in ?: 0); 
                             ?></div>
                             <div class="label">Total In (All Time)</div>
@@ -183,7 +183,7 @@ $totals = mysqli_fetch_array($totalResult);
                         <div class="stat-card bg-warning">
                             <div class="icon text-white"><i class="fas fa-minus-circle"></i></div>
                             <div class="value text-white">₦<?php 
-                                $total_out = $con->query("SELECT SUM(price) as total FROM expense WHERE type='out'")->fetch_assoc()['total'];
+                                $total_out = $con->query("SELECT SUM(price) as total FROM expense WHERE deleted_flag = 0 AND type='out'")->fetch_assoc()['total'];
                                 echo number_format($total_out ?: 0); 
                             ?></div>
                             <div class="label">Total Out (All Time)</div>

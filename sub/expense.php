@@ -43,11 +43,11 @@ if (isset($_POST['update'])) {
 
 if (isset($_GET['del']) && isset($_GET['id'])) {
     $id = mysqli_real_escape_string($con, $_GET['id']);
-    mysqli_query($con, "DELETE FROM expense WHERE id = '$id'");
+    mysqli_query($con, "UPDATE expense SET deleted_flag = 1, sync_status = 'pending' WHERE id = '$id'");
 }
 
 // Build the query with filters
-$query = "SELECT * FROM expense WHERE 1=1";
+$query = "SELECT * FROM expense WHERE deleted_flag = 0";
 if ($typeFilter) {
     $query .= " AND type = '$typeFilter'";
 }
@@ -57,7 +57,7 @@ if ($dateFilter) {
 $sql = mysqli_query($con, $query);
 
 // Calculate total for filtered results
-$totalQuery = "SELECT SUM(price) as total FROM expense WHERE 1=1";
+$totalQuery = "SELECT SUM(price) as total FROM expense WHERE deleted_flag = 0";
 if ($typeFilter) {
     $totalQuery .= " AND type = '$typeFilter'";
 }
@@ -137,7 +137,7 @@ $totalPrice = $totalRow['total'] ? number_format($totalRow['total']) : '0';
                                         <?php
                                         $date = date('Y-m-d');
                                         $facilityID = $_SESSION['facilityID'];
-                                        $in_query = $con->query("SELECT SUM(price) as 'total_in' FROM expense WHERE Date(creation)='$date' AND type='in'");
+                                        $in_query = $con->query("SELECT SUM(price) as 'total_in' FROM expense WHERE Date(creation)='$date' AND type='in' AND deleted_flag = 0");
                                         $in_row = $in_query->fetch_array();
                                         ?>
                                         <h1 style="color:white"> <b>  ₦<?php echo number_format($in_row['total_in'] ?: 0); ?></b></h1>
@@ -161,7 +161,7 @@ $totalPrice = $totalRow['total'] ? number_format($totalRow['total']) : '0';
                                     <?php
                                         $date = date('Y-m-d');
                                         $facilityID = $_SESSION['facilityID'];
-                                        $out_query = $con->query("SELECT SUM(price) as 'total_out' FROM expense WHERE Date(creation)='$date' AND type='out'");
+                                        $out_query = $con->query("SELECT SUM(price) as 'total_out' FROM expense WHERE Date(creation)='$date' AND type='out' AND deleted_flag = 0");
                                         $out_row = $out_query->fetch_array();
                                         ?>
                                         <h1 style="color:white"> <b>  ₦<?php echo number_format($out_row['total_out'] ?: 0); ?></b></h1>
@@ -183,7 +183,7 @@ $totalPrice = $totalRow['total'] ? number_format($totalRow['total']) : '0';
                                     </div>
                                     <div class="acc-action">
                                         <?php
-                                        $total_out_query = "SELECT SUM(price) as 'total_out' FROM expense WHERE type='out'";
+                                        $total_out_query = "SELECT SUM(price) as 'total_out' FROM expense WHERE type='out' AND deleted_flag = 0";
                                         if ($typeFilter) {
                                             $total_out_query .= " AND type = '$typeFilter'";
                                         }
@@ -212,7 +212,7 @@ $totalPrice = $totalRow['total'] ? number_format($totalRow['total']) : '0';
                                     </div>
                                     <div class="acc-action">
                                         <?php
-                                        $total_in_query = "SELECT SUM(price) as 'total_in' FROM expense WHERE type='in'";
+                                        $total_in_query = "SELECT SUM(price) as 'total_in' FROM expense WHERE type='in' AND deleted_flag = 0";
                                         if ($typeFilter) {
                                             $total_in_query .= " AND type = '$typeFilter'";
                                         }

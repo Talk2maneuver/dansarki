@@ -11,7 +11,7 @@ else
 {
     if(isset($_GET['del']))
     {
-        mysqli_query($con,"delete from customers where id = '".$_GET['id']."'");
+        mysqli_query($con,"UPDATE customers SET deleted_flag = 1, sync_status = 'pending' WHERE id = '".$_GET['id']."'");
     }
 }
 ?>
@@ -70,9 +70,9 @@ else
                                         <?php
                                         $date = date('m');
                                         $facilityID = $_SESSION['facilityID'];
-                                        $order_query = $con->query("SELECT SUM(net_total) as 'total' FROM orders");
+                                        $order_query = $con->query("SELECT SUM(net_total) as 'total' FROM orders WHERE deleted_flag = 0");
                                         $row = $order_query->fetch_array();
-                                        $r_query = $con->query("SELECT SUM(balance) as 'debt' FROM outstand");
+                                        $r_query = $con->query("SELECT SUM(balance) as 'debt' FROM outstand WHERE deleted_flag = 0");
                                         $r_row = $r_query->fetch_array();
                                         $real = ($row['total'] ?? 0) - ($r_row['debt'] ?? 0); 
                                         ?>
@@ -96,7 +96,7 @@ else
                                         <?php
                                         $date = date('m');
                                         $facilityID = $_SESSION['facilityID'];
-                                        $r_query = $con->query("SELECT SUM(balance) as 'debt' FROM outstand");
+                                        $r_query = $con->query("SELECT SUM(balance) as 'debt' FROM outstand WHERE deleted_flag = 0");
                                         $r_row = $r_query->fetch_array();
                                         ?>
                                         <h1 style="color:white;"><b>₦<?php echo number_format($r_row['debt'] ?? 0); ?></b></h1>
@@ -133,6 +133,7 @@ else
                                                               MONTH(creation) as 'mo', 
                                                               YEAR(creation) as 'year' 
                                                               FROM orders 
+                                                              WHERE deleted_flag = 0 
                                                               GROUP BY MONTH(creation), YEAR(creation)");
                                     $cnt = 1;
                                     while($row = mysqli_fetch_array($sql))

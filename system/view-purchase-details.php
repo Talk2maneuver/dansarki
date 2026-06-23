@@ -8,7 +8,7 @@ if (strlen($_SESSION['email']) == 0) {
 }
 
 // Get purchase information
-$purchase_query = mysqli_query($con, "SELECT * FROM purchase_history WHERE id='$did'");
+$purchase_query = mysqli_query($con, "SELECT * FROM purchase_history WHERE id='$did' AND deleted_flag = 0");
 $purchase_data = mysqli_fetch_array($purchase_query);
 
 if (!$purchase_data) {
@@ -19,7 +19,7 @@ if (!$purchase_data) {
 // Delete deposit logic
 if(isset($_GET['del_dep'])) {
     $dep_id = intval($_GET['dep_id']);
-    $dep_query = mysqli_query($con, "SELECT * FROM purchase_deposit_history WHERE id='$dep_id'");
+    $dep_query = mysqli_query($con, "SELECT * FROM purchase_deposit_history WHERE id='$dep_id' AND deleted_flag = 0");
     if($row = mysqli_fetch_array($dep_query)) {
         $amount = floatval($row['amount']);
         $pID = $row['purchaseID'];
@@ -28,7 +28,7 @@ if(isset($_GET['del_dep'])) {
         mysqli_query($con, "UPDATE purchase_history SET amount_paid = amount_paid - $amount, balance = balance + $amount WHERE id='$pID'");
         
         // Delete the deposit
-        mysqli_query($con, "DELETE FROM purchase_deposit_history WHERE id='$dep_id'");
+        mysqli_query($con, "UPDATE purchase_deposit_history SET deleted_flag = 1, sync_status = 'pending' WHERE id='$dep_id'");
         
         echo "<script>alert('Payment record deleted successfully'); window.location.href='view-purchase-details?id=$did';</script>";
         exit;
@@ -107,7 +107,7 @@ if(isset($_GET['del_dep'])) {
                                     </thead>
                                     <tbody>
                                         <?php
-                                        $history_query = mysqli_query($con, "SELECT * FROM purchase_deposit_history WHERE purchaseID='$did' ORDER BY deposit_date DESC");
+                                        $history_query = mysqli_query($con, "SELECT * FROM purchase_deposit_history WHERE purchaseID='$did' AND deleted_flag = 0 ORDER BY deposit_date DESC");
                                         $cnt = 1;
                                         while ($row = mysqli_fetch_array($history_query)) {
                                         ?>

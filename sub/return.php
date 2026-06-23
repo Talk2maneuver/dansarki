@@ -16,7 +16,7 @@ else{
         $facilityID = $_SESSION['facilityID'];
 
         // Fetch all items in this order to verify and move
-        $order_items_query = mysqli_query($con, "SELECT * FROM orders WHERE orderID='$name'");
+        $order_items_query = mysqli_query($con, "SELECT * FROM orders WHERE orderID='$name' AND deleted_flag = 0");
         
         if (mysqli_num_rows($order_items_query) > 0) {
             $total_to_reverse = 0;
@@ -49,7 +49,7 @@ else{
             }
 
             // Delete the order records
-            mysqli_query($con, "DELETE FROM orders WHERE orderID='$name'");
+            mysqli_query($con, "UPDATE orders SET deleted_flag = 1, sync_status = 'pending' WHERE orderID='$name'");
             
             echo "<script>alert('Order #$name has been moved back to the cart and stocks restored.'); window.location.href='order.php?id=$staffID';</script>";
             exit;

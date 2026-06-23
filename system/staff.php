@@ -34,9 +34,9 @@ $error="Something went wrong. Please try again";
 
 
 }
-if(isset($_GET['del']))
+  if(isset($_GET['del']))
       {
-              mysqli_query($con,"delete from facility where id = '".$_GET['id']."'");
+              mysqli_query($con,"UPDATE facility SET deleted_flag = 1, sync_status = 'pending' WHERE id = '".$_GET['id']."'");
             
 
       }
@@ -168,7 +168,7 @@ return true;
                                 </thead>
                                 <tbody>
                       <?php
-                          $sql = mysqli_query($con, "SELECT * FROM facility WHERE role != 'admin'");
+                          $sql = mysqli_query($con, "SELECT * FROM facility WHERE role != 'admin' AND deleted_flag = 0");
                           $cnt=1;
                           while($row=mysqli_fetch_array($sql))
                           {

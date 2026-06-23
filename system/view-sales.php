@@ -75,7 +75,7 @@ else
                              
                         <?php
                         $facilityID = $_SESSION['facilityID'];
-$sql = mysqli_query($con, "SELECT * FROM orders WHERE MONTH(creation) = '$did' AND YEAR(creation) = '$year' AND facilityID='$facilityID' ORDER BY orderID DESC, creation DESC");
+$sql = mysqli_query($con, "SELECT * FROM orders WHERE deleted_flag = 0 AND MONTH(creation) = '$did' AND YEAR(creation) = '$year' AND facilityID='$facilityID' ORDER BY orderID DESC, creation DESC");
 $orders = [];
 while ($row = mysqli_fetch_assoc($sql)) {
     $orderID = $row['orderID'];

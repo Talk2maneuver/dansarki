@@ -16,7 +16,7 @@ if (strlen($_SESSION['email']) == 0) {
         $orderID = mysqli_real_escape_string($con, $_POST['name']);
 
         // Fetch all items in this order to verify and move
-        $order_items_query = mysqli_query($con, "SELECT * FROM orders WHERE orderID='$orderID'");
+        $order_items_query = mysqli_query($con, "SELECT * FROM orders WHERE orderID='$orderID' AND deleted_flag = 0");
         
         if (mysqli_num_rows($order_items_query) > 0) {
             $total_to_reverse = 0;
@@ -49,7 +49,7 @@ if (strlen($_SESSION['email']) == 0) {
             }
 
             // Delete the order records
-            mysqli_query($con, "DELETE FROM orders WHERE orderID='$orderID'");
+            mysqli_query($con, "UPDATE orders SET deleted_flag = 1, sync_status = 'pending' WHERE orderID='$orderID'");
             
             echo "<script>alert('Order #$orderID has been moved back to the cart and stocks restored.'); window.location.href='index?id=$staffID';</script>";
             exit;

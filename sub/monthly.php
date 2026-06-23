@@ -11,7 +11,7 @@ else
 {
     if(isset($_GET['del']))
       {
-              mysqli_query($con,"delete from customers where id = '".$_GET['id']."'");
+              mysqli_query($con,"UPDATE customers SET deleted_flag = 1, sync_status = 'pending' WHERE id = '".$_GET['id']."'");
             
 
       }
@@ -132,10 +132,10 @@ else
                                         <?php
                    $date = date('m');
   $facilityID = $_SESSION['facilityID'];
-                  $order_query = $con->query("SELECT SUM(subtotal) as 'total' FROM orders where MONTH(creation)='$date'");
+                  $order_query = $con->query("SELECT SUM(subtotal) as 'total' FROM orders where deleted_flag = 0 and MONTH(creation)='$date'");
 $row = $order_query->fetch_array();
  
-$r_query = $con->query("SELECT SUM(balance) as 'debt' FROM outstand where MONTH(creation)='$date'");
+$r_query = $con->query("SELECT SUM(balance) as 'debt' FROM outstand where deleted_flag = 0 and MONTH(creation)='$date'");
 $r_row = $r_query->fetch_array();
 
               $real = $row['total'] - $r_row['debt']; 
@@ -168,7 +168,7 @@ $r_row = $r_query->fetch_array();
                   $date = date('m');
                  $facilityID = $_SESSION['facilityID'];
 
-$r_query = $con->query("SELECT SUM(balance) as 'debt' FROM outstand where MONTH(creation)='$date'");
+$r_query = $con->query("SELECT SUM(balance) as 'debt' FROM outstand where deleted_flag = 0 and MONTH(creation)='$date'");
 $r_row = $r_query->fetch_array();
 
               
@@ -189,19 +189,19 @@ $r_row = $r_query->fetch_array();
 
                 $cashQuery = "SELECT SUM(cash) as cash_total FROM (
                                     SELECT orderId, cash FROM orders
-                                    WHERE MONTH(creation) = '$date'
+                                    WHERE deleted_flag = 0 AND MONTH(creation) = '$date'
                                     GROUP BY orderId
                                 ) as unique_orders";
                 
                 $posQuery = "SELECT SUM(pos) as pos_total FROM (
                                 SELECT orderId, pos FROM orders
-                                WHERE MONTH(creation) = '$date'
+                                WHERE deleted_flag = 0 AND MONTH(creation) = '$date'
                                 GROUP BY orderId
                             ) as unique_orders";
                 
                 $transferQuery = "SELECT SUM(transfer) as transfer_total FROM (
                                         SELECT orderId, transfer FROM orders
-                                        WHERE MONTH(creation) = '$date'
+                                        WHERE deleted_flag = 0 AND MONTH(creation) = '$date'
                                         GROUP BY orderId
                                     ) as unique_orders";
                 
@@ -263,7 +263,7 @@ $r_row = $r_query->fetch_array();
                         <div class="widget-content widget-content-area br-6">
                         <?php
                             $date = date('m');
-                            $sql = mysqli_query($con, "SELECT * FROM orders WHERE  MONTH(creation) = '$date' ORDER BY orderID DESC, creation DESC");
+                            $sql = mysqli_query($con, "SELECT * FROM orders WHERE deleted_flag = 0 AND MONTH(creation) = '$date' ORDER BY orderID DESC, creation DESC");
                             $orders = [];
                             while($row = mysqli_fetch_assoc($sql)) {
                                 $orderID = $row['orderID'];
