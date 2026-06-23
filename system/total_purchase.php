@@ -13,7 +13,7 @@ else
       {
               $month = $_GET['mo'];
               $year = $_GET['ye'];
-              mysqli_query($con,"delete from purchase_history where MONTH(purchase_date) = '$month' AND YEAR(purchase_date) = '$year'");
+              mysqli_query($con,"UPDATE purchase_history SET deleted_flag = 1, sync_status = 'pending' where MONTH(purchase_date) = '$month' AND YEAR(purchase_date) = '$year'");
             
 
       }
@@ -92,7 +92,7 @@ else
                                           <?php
 $date = date('d-m-Y');
                       $facilityID = $_SESSION['facilityID'];
-                  $x_query = $con->query("SELECT SUM(total_cost) as 'selling' FROM purchase_history where facilityID='$facilityID'");
+                  $x_query = $con->query("SELECT SUM(total_cost) as 'selling' FROM purchase_history where deleted_flag = 0 AND facilityID='$facilityID'");
 $x_row = $x_query->fetch_array();
 $real = $x_row['selling'];
 ?>
@@ -130,7 +130,7 @@ $real = $x_row['selling'];
                                 <tbody>
                                   <?php
             $facilityID = $_SESSION['facilityID'];
-$sql=mysqli_query($con,"SELECT purchase_from, MONTHNAME(purchase_date) as 'month', SUM(total_cost) as 'income', MONTH(purchase_date) as 'mo', YEAR(purchase_date) as 'year' from purchase_history where facilityID='$facilityID' GROUP BY MONTH(purchase_date)");
+$sql=mysqli_query($con,"SELECT purchase_from, MONTHNAME(purchase_date) as 'month', SUM(total_cost) as 'income', MONTH(purchase_date) as 'mo', YEAR(purchase_date) as 'year' from purchase_history where deleted_flag = 0 AND facilityID='$facilityID' GROUP BY MONTH(purchase_date)");
 $cnt=1;
 while($row=mysqli_fetch_array($sql))
 {

@@ -11,7 +11,7 @@ else
 {
     if(isset($_GET['del']))
       {
-              mysqli_query($con,"delete from customers where id = '".$_GET['id']."'");
+              mysqli_query($con,"UPDATE customers SET deleted_flag = 1, sync_status = 'pending' WHERE id = '".$_GET['id']."'");
             
 
       }
@@ -89,7 +89,7 @@ else
                                     <div class="acc-action">
                                         <?php
                       $day_start = date('Y-m-d');
-                      $x_query = $con->query("SELECT SUM(total_cost) as 'selling' FROM purchase_history where DATE(purchase_date)='$day_start'");
+                      $x_query = $con->query("SELECT SUM(total_cost) as 'selling' FROM purchase_history where deleted_flag = 0 AND DATE(purchase_date)='$day_start'");
                       $x_row = $x_query->fetch_array();
                       $real = $x_row['selling'];
 ?>
@@ -127,7 +127,7 @@ else
                                 <tbody>
                                   <?php
                                   $day_start = date('Y-m-d');
-$sql=mysqli_query($con,"select * from purchase_history where DATE(purchase_date)='$day_start'");
+$sql=mysqli_query($con,"select * from purchase_history where deleted_flag = 0 AND DATE(purchase_date)='$day_start'");
 $cnt=1;
 while($row=mysqli_fetch_array($sql))
 {

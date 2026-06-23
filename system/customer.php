@@ -32,7 +32,7 @@ $error="Something went wrong. Please try again";
 }
 if(isset($_GET['del']))
       {
-              mysqli_query($con,"delete from customers where id = '".$_GET['id']."'");
+              mysqli_query($con,"update customers set deleted_flag = 1, sync_status = 'pending' where id = '".$_GET['id']."'");
             
 
       }
@@ -152,7 +152,7 @@ if(isset($_GET['del']))
          $date_filter = " AND DATE(creation) BETWEEN '$from_date' AND '$to_date'";
      }
 
-     $sql=mysqli_query($con,"select * from customers where 1=1 $date_filter");
+     $sql=mysqli_query($con,"select * from customers where deleted_flag = 0 $date_filter");
     $cnt=1;
     while($row=mysqli_fetch_array($sql))
     {

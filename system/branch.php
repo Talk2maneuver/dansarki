@@ -34,7 +34,7 @@ if (strlen($_SESSION['email']) == 0) {
 
     // Delete branch
     if (isset($_GET['del'])) {
-        mysqli_query($con, "DELETE FROM branch WHERE id='" . $_GET['id'] . "'");
+        mysqli_query($con, "update branch set deleted_flag = 1, sync_status = 'pending' where id = '" . $_GET['id'] . "'");
     }
 
     // Fetch branch details for editing
@@ -50,7 +50,7 @@ if (strlen($_SESSION['email']) == 0) {
         $branch_name = $_POST['branch_name'];
         $branch_address = $_POST['branch_address'];
 
-        $sql = mysqli_query($con, "UPDATE branch SET name='$branch_name', address='$branch_address' WHERE id='$branch_id'");
+        $sql = mysqli_query($con, "UPDATE branch SET name='$branch_name', address='$branch_address', sync_status='pending' WHERE id='$branch_id'");
         if ($sql) {
             $msg = "Branch updated successfully";
         } else {
@@ -108,7 +108,7 @@ if (strlen($_SESSION['email']) == 0) {
                                 <tbody>
                                     <?php
                                     $facilityID = $_SESSION['facilityID'];
-                                    $sql = mysqli_query($con, "SELECT * FROM branch");
+                                    $sql = mysqli_query($con, "SELECT * FROM branch WHERE deleted_flag = 0");
                                     $cnt = 1;
                                     while ($row = mysqli_fetch_array($sql)) {
                                     ?>

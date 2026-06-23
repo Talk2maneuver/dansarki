@@ -20,7 +20,7 @@ if ($action == 'list') {
     $stock_row = mysqli_fetch_assoc($stock_check);
     $stock_name = $stock_row['name'];
 
-    $sql = mysqli_query($con, "SELECT * FROM purchase_history WHERE stock_id = '$stock_id' AND facilityID = '$facilityID' ORDER BY purchase_date DESC, id DESC");
+    $sql = mysqli_query($con, "SELECT * FROM purchase_history WHERE stock_id = '$stock_id' AND facilityID = '$facilityID' AND deleted_flag = 0 ORDER BY purchase_date DESC, id DESC");
     
     if (mysqli_num_rows($sql) == 0) {
         echo "<p class='text-center'>No purchase history found for this item.</p>";
@@ -68,7 +68,7 @@ if ($action == 'delete') {
     $stock_id = mysqli_real_escape_string($con, $_POST['stock_id']);
 
     // Get purchase info before deleting
-    $p_sql = mysqli_query($con, "SELECT quantity, DATE(purchase_date) as p_date FROM purchase_history WHERE id = '$id' AND stock_id = '$stock_id' AND facilityID = '$facilityID'");
+    $p_sql = mysqli_query($con, "SELECT quantity, DATE(purchase_date) as p_date FROM purchase_history WHERE id = '$id' AND stock_id = '$stock_id' AND facilityID = '$facilityID' AND deleted_flag = 0");
     if ($row = mysqli_fetch_assoc($p_sql)) {
         $p_qty = $row['quantity'];
         $p_date = $row['p_date'];
@@ -82,7 +82,7 @@ if ($action == 'delete') {
         $update_sql .= " WHERE id = '$stock_id' AND facilityID = '$facilityID'";
         
         mysqli_query($con, $update_sql);
-        mysqli_query($con, "DELETE FROM purchase_history WHERE id = '$id'");
+        mysqli_query($con, "UPDATE purchase_history SET deleted_flag = 1, sync_status = 'pending' WHERE id = '$id'");
 
         echo json_encode(['status' => 'success', 'message' => 'Purchase removed and stock adjusted successfully.']);
     } else {
@@ -98,7 +98,7 @@ if ($action == 'update') {
     $new_total = $new_qty * $new_cost;
 
     // Get old purchase info
-    $p_sql = mysqli_query($con, "SELECT quantity, DATE(purchase_date) as p_date FROM purchase_history WHERE id = '$id' AND stock_id = '$stock_id' AND facilityID = '$facilityID'");
+    $p_sql = mysqli_query($con, "SELECT quantity, DATE(purchase_date) as p_date FROM purchase_history WHERE id = '$id' AND stock_id = '$stock_id' AND facilityID = '$facilityID' AND deleted_flag = 0");
     if ($row = mysqli_fetch_assoc($p_sql)) {
         $old_qty = $row['quantity'];
         $p_date = $row['p_date'];
@@ -106,7 +106,7 @@ if ($action == 'update') {
         $is_today = ($p_date == date('Y-m-d'));
 
         // Update purchase history
-        mysqli_query($con, "UPDATE purchase_history SET quantity = '$new_qty', cost_price = '$new_cost', total_cost = '$new_total' WHERE id = '$id'");
+        mysqli_query($con, "UPDATE purchase_history SET quantity = '$new_qty', cost_price = '$new_cost', total_cost = '$new_total', sync_status = 'pending' WHERE id = '$id'");
 
         // Update stock: adjust by the difference
         $update_sql = "UPDATE stocks SET quantity = quantity + '$diff'";

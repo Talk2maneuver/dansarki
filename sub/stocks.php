@@ -42,12 +42,12 @@ else
         }
     }
 
-if(isset($_GET['del']))
-      {
-              mysqli_query($con,"delete from stocks where id = '".$_GET['id']."'");
-            
-
-      }
+    if(isset($_GET['del']))
+          {
+                  mysqli_query($con,"UPDATE stocks SET deleted_flag = 1, sync_status = 'pending' WHERE id = '".$_GET['id']."'");
+                
+    
+          }
 
      
 }
@@ -127,7 +127,7 @@ if(isset($_GET['del']))
                   $facilityID = $_SESSION['facilityID'];
 
                   //$r_query = $con->query("SELECT SUM(Bsubtotal) as 'selling' FROM stocks where  pharmID='$pharmID'");
-		$r_query = $con->query("SELECT SUM(buying * quantity) as 'buying' FROM stocks");
+		$r_query = $con->query("SELECT SUM(buying * quantity) as 'buying' FROM stocks WHERE deleted_flag = 0");
 $r_row = $r_query->fetch_array();
  
 
@@ -160,7 +160,7 @@ $r_row = $r_query->fetch_array();
                                          <?php
                    $date = date('m');
                    $facilityID = $_SESSION['facilityID'];
-                  $q_query = $con->query("SELECT SUM(selling * quantity) as 'selling' FROM stocks");
+                  $q_query = $con->query("SELECT SUM(selling * quantity) as 'selling' FROM stocks WHERE deleted_flag = 0");
 $q_row = $q_query->fetch_array();
  
 
@@ -205,7 +205,7 @@ $q_row = $q_query->fetch_array();
                                 <tbody>
                                  <?php
      $facilityID = $_SESSION['facilityID'];
-$sql=mysqli_query($con,"select * from stocks");
+$sql=mysqli_query($con,"select * from stocks WHERE deleted_flag = 0");
 $cnt=1;
 while($row=mysqli_fetch_array($sql))
 {

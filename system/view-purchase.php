@@ -91,7 +91,7 @@ else
                                     <?php
    $date = date('m');
    $facilityID = $_SESSION['facilityID'];
-$sql=mysqli_query($con,"select * from purchase_history where MONTH(purchase_date) = '$did' and YEAR(purchase_date) = '$year'and facilityID='$facilityID'");
+$sql=mysqli_query($con,"select * from purchase_history where deleted_flag = 0 and MONTH(purchase_date) = '$did' and YEAR(purchase_date) = '$year'and facilityID='$facilityID'");
 $cnt=1;
 while($row=mysqli_fetch_array($sql))
 {

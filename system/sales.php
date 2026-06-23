@@ -11,7 +11,7 @@ else
 {
     if(isset($_GET['del']))
     {
-        mysqli_query($con,"delete from customers where id = '".$_GET['id']."'");
+        mysqli_query($con,"UPDATE customers SET deleted_flag = 1, sync_status = 'pending' WHERE id = '".$_GET['id']."'");
     }
 }
 ?>
@@ -70,13 +70,13 @@ else
                                          <?php
                                          $date = date('m');
                                          $facilityID = $_SESSION['facilityID'];
-                                         if ($facilityID) {
-                                             $order_query = $con->query("SELECT SUM(CAST(subtotal AS DECIMAL(15,2))) as 'total' FROM orders WHERE facilityID='$facilityID'");
-                                             $r_query = $con->query("SELECT SUM(debt) as 'debt' FROM (SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders WHERE facilityID='$facilityID' AND CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) GROUP BY orderId) as t");
-                                         } else {
-                                             $order_query = $con->query("SELECT SUM(CAST(subtotal AS DECIMAL(15,2))) as 'total' FROM orders");
-                                             $r_query = $con->query("SELECT SUM(debt) as 'debt' FROM (SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders WHERE CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) GROUP BY orderId) as t");
-                                         }
+                                          if ($facilityID) {
+                                              $order_query = $con->query("SELECT SUM(CAST(subtotal AS DECIMAL(15,2))) as 'total' FROM orders WHERE facilityID='$facilityID' AND deleted_flag = 0");
+                                              $r_query = $con->query("SELECT SUM(debt) as 'debt' FROM (SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders WHERE facilityID='$facilityID' AND deleted_flag = 0 AND CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) GROUP BY orderId) as t");
+                                          } else {
+                                              $order_query = $con->query("SELECT SUM(CAST(subtotal AS DECIMAL(15,2))) as 'total' FROM orders WHERE deleted_flag = 0");
+                                              $r_query = $con->query("SELECT SUM(debt) as 'debt' FROM (SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders WHERE deleted_flag = 0 AND CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) GROUP BY orderId) as t");
+                                          }
                                          $row = $order_query->fetch_array();
                                          $r_row = $r_query->fetch_array();
                                          $real = ($row['total'] ?? 0) - ($r_row['debt'] ?? 0); 
@@ -102,9 +102,9 @@ else
                                         $date = date('m');
                                         $facilityID = $_SESSION['facilityID'];
                                         if ($facilityID) {
-                                            $r_query = $con->query("SELECT SUM(debt) as 'debt' FROM (SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders WHERE facilityID='$facilityID' AND CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) GROUP BY orderId) as t");
+                                            $r_query = $con->query("SELECT SUM(debt) as 'debt' FROM (SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders WHERE facilityID='$facilityID' AND deleted_flag = 0 AND CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) GROUP BY orderId) as t");
                                         } else {
-                                            $r_query = $con->query("SELECT SUM(debt) as 'debt' FROM (SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders WHERE CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) GROUP BY orderId) as t");
+                                            $r_query = $con->query("SELECT SUM(debt) as 'debt' FROM (SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders WHERE deleted_flag = 0 AND CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) GROUP BY orderId) as t");
                                         }
                                         $r_row = $r_query->fetch_array();
                                         ?>
@@ -136,27 +136,28 @@ else
                                     <?php
                                     $facilityID = $_SESSION['facilityID'];
                                     if ($facilityID) {
-                                        $sql = mysqli_query($con, "SELECT MONTHNAME(creation) as 'month', 
-                                                                  SUM(cash) as 'cash_total',
-                                                                  SUM(pos) as 'pos_total',
-                                                                  SUM(transfer) as 'transfer_total',
-                                                                  SUM(net_total) as 'income', 
-                                                                  MONTH(creation) as 'mo', 
-                                                                  YEAR(creation) as 'year', facilityID
-                                                                  FROM orders 
-                                                                  WHERE facilityID='$facilityID' 
-                                                                  GROUP BY MONTH(creation), YEAR(creation)");
-                                    } else {
-                                        $sql = mysqli_query($con, "SELECT MONTHNAME(creation) as 'month', 
-                                                                  SUM(cash) as 'cash_total',
-                                                                  SUM(pos) as 'pos_total',
-                                                                  SUM(transfer) as 'transfer_total',
-                                                                  SUM(net_total) as 'income', 
-                                                                  MONTH(creation) as 'mo', 
-                                                                  YEAR(creation) as 'year', facilityID
-                                                                  FROM orders 
-                                                                  GROUP BY MONTH(creation), YEAR(creation)");
-                                    }
+                                         $sql = mysqli_query($con, "SELECT MONTHNAME(creation) as 'month', 
+                                                                   SUM(cash) as 'cash_total',
+                                                                   SUM(pos) as 'pos_total',
+                                                                   SUM(transfer) as 'transfer_total',
+                                                                   SUM(net_total) as 'income', 
+                                                                   MONTH(creation) as 'mo', 
+                                                                   YEAR(creation) as 'year', facilityID
+                                                                   FROM orders 
+                                                                   WHERE facilityID='$facilityID' AND deleted_flag = 0 
+                                                                   GROUP BY MONTH(creation), YEAR(creation)");
+                                     } else {
+                                         $sql = mysqli_query($con, "SELECT MONTHNAME(creation) as 'month', 
+                                                                   SUM(cash) as 'cash_total',
+                                                                   SUM(pos) as 'pos_total',
+                                                                   SUM(transfer) as 'transfer_total',
+                                                                   SUM(net_total) as 'income', 
+                                                                   MONTH(creation) as 'mo', 
+                                                                   YEAR(creation) as 'year', facilityID
+                                                                   FROM orders 
+                                                                   WHERE deleted_flag = 0 
+                                                                   GROUP BY MONTH(creation), YEAR(creation)");
+                                     }
                                     $cnt = 1;
                                     while($row = mysqli_fetch_array($sql))
                                     {

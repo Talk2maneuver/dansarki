@@ -85,7 +85,7 @@ if (strlen($_SESSION['email']) == 0) {
 
     // Handle stock deletion
     if (isset($_GET['del'])) {
-        mysqli_query($con, "DELETE FROM stocks WHERE id = '" . $_GET['id'] . "'");
+        mysqli_query($con, "UPDATE stocks SET deleted_flag = 1, sync_status = 'pending' WHERE id = '" . $_GET['id'] . "'");
         $msg = "Stock deleted successfully";
     }
 
@@ -150,7 +150,7 @@ if (strlen($_SESSION['email']) == 0) {
                                     </div>
                                     <div class="acc-action">
                                         <?php
-                                        $r_query = $con->query("SELECT SUM(buying * quantity) as 'buying' FROM stocks");
+                                        $r_query = $con->query("SELECT SUM(buying * quantity) as 'buying' FROM stocks WHERE deleted_flag = 0");
                                         $r_row = $r_query->fetch_array();
                                         $real = $r_row['buying'];
                                         ?>
@@ -169,7 +169,7 @@ if (strlen($_SESSION['email']) == 0) {
                                     </div>
                                     <div class="acc-action">
                                         <?php
-                                        $q_query = $con->query("SELECT SUM(selling * quantity) as 'selling' FROM stocks");
+                                        $q_query = $con->query("SELECT SUM(selling * quantity) as 'selling' FROM stocks WHERE deleted_flag = 0");
                                         $q_row = $q_query->fetch_array();
                                         $real = $q_row['selling'];
                                         ?>
@@ -220,7 +220,7 @@ if (strlen($_SESSION['email']) == 0) {
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $sql = mysqli_query($con, "SELECT * FROM stocks");
+                                    $sql = mysqli_query($con, "SELECT * FROM stocks WHERE deleted_flag = 0");
                                     $cnt = 1;
                                     $is_today = ($report_date == date('Y-m-d'));
                                     

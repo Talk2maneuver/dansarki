@@ -16,7 +16,7 @@ $outstanding_query = mysqli_query($con, "SELECT * FROM outstand WHERE customerID
 $outstanding_data = mysqli_fetch_array($outstanding_query);
 
 // Calculate correct total deposits from history
-$total_deposits_query = mysqli_query($con, "SELECT SUM(amount) as total FROM deposit_history WHERE customerID='$did'");
+$total_deposits_query = mysqli_query($con, "SELECT SUM(amount) as total FROM deposit_history WHERE customerID='$did' AND deleted_flag = 0");
 $total_deposits_data = mysqli_fetch_array($total_deposits_query);
 $actual_total_deposits = $total_deposits_data['total'] ?? 0;
 
@@ -34,17 +34,17 @@ if (!empty($from_date) && !empty($to_date)) {
 $facilityID = $_SESSION['facilityID'];
 
 // 1. Total Subtotal (Gross) considering unit discount
-$sales_query = mysqli_query($con, "SELECT SUM(CAST(subtotal AS DECIMAL(10,2)) - (CAST(item_discount AS DECIMAL(10,2)) * CAST(quantity AS INT))) as total_sales FROM orders WHERE customerID='$did' AND facilityID='$facilityID'");
+$sales_query = mysqli_query($con, "SELECT SUM(CAST(subtotal AS DECIMAL(10,2)) - (CAST(item_discount AS DECIMAL(10,2)) * CAST(quantity AS INT))) as total_sales FROM orders WHERE customerID='$did' AND facilityID='$facilityID' AND deleted_flag = 0");
 $sales_data = mysqli_fetch_array($sales_query);
 $total_sales = $sales_data['total_sales'] ?? 0;
 
 // 2. Total Discounts (at order level) for current facility
-$discount_query = mysqli_query($con, "SELECT SUM(CAST(discount AS DECIMAL(10,2))) as total_discount FROM (SELECT orderID, discount FROM orders WHERE customerID='$did' AND facilityID='$facilityID' GROUP BY orderID) as t");
+$discount_query = mysqli_query($con, "SELECT SUM(CAST(discount AS DECIMAL(10,2))) as total_discount FROM (SELECT orderID, discount FROM orders WHERE customerID='$did' AND facilityID='$facilityID' AND deleted_flag = 0 GROUP BY orderID) as t");
 $discount_data = mysqli_fetch_array($discount_query);
 $total_discount = $discount_data['total_discount'] ?? 0;
 
 // 3. Total Initial Payments (at order level) for current facility
-$initial_payment_query = mysqli_query($con, "SELECT SUM(CAST(amount_paid AS DECIMAL(10,2))) as total_initial_paid FROM (SELECT orderID, amount_paid FROM orders WHERE customerID='$did' AND facilityID='$facilityID' GROUP BY orderID) as t");
+$initial_payment_query = mysqli_query($con, "SELECT SUM(CAST(amount_paid AS DECIMAL(10,2))) as total_initial_paid FROM (SELECT orderID, amount_paid FROM orders WHERE customerID='$did' AND facilityID='$facilityID' AND deleted_flag = 0 GROUP BY orderID) as t");
 $initial_payment_data = mysqli_fetch_array($initial_payment_query);
 $total_initial_paid = $initial_payment_data['total_initial_paid'] ?? 0;
 
@@ -54,7 +54,7 @@ $actual_balance = $total_sales - $total_discount - $total_initial_paid - $actual
 // Delete order item logic
 if(isset($_GET['del_order'])) {
     $item_id = intval($_GET['item_id']);
-    $item_query = mysqli_query($con, "SELECT * FROM orders WHERE id='$item_id'");
+    $item_query = mysqli_query($con, "SELECT * FROM orders WHERE id='$item_id' AND deleted_flag = 0");
     if($row = mysqli_fetch_array($item_query)) {
         $subtotal = floatval($row['subtotal']);
         $quantity = intval($row['quantity']);
@@ -69,7 +69,7 @@ if(isset($_GET['del_order'])) {
         mysqli_query($con, "UPDATE stocks SET quantity = quantity + $quantity WHERE name='$item_name' AND facilityID='$facilityID'");
         
         // Delete the item
-        mysqli_query($con, "DELETE FROM orders WHERE id='$item_id'");
+        mysqli_query($con, "UPDATE orders SET deleted_flag = 1, sync_status = 'pending' WHERE id='$item_id'");
         
         echo "<script>alert('Order item deleted successfully'); window.location.href='view-customer?id=$did';</script>";
         exit;
@@ -79,7 +79,7 @@ if(isset($_GET['del_order'])) {
 // Delete deposit logic
 if(isset($_GET['del_dep'])) {
     $dep_id = intval($_GET['dep_id']);
-    $dep_query = mysqli_query($con, "SELECT * FROM deposit_history WHERE id='$dep_id'");
+    $dep_query = mysqli_query($con, "SELECT * FROM deposit_history WHERE id='$dep_id' AND deleted_flag = 0");
     if($row = mysqli_fetch_array($dep_query)) {
         $amount = floatval($row['amount']);
         $custID = $row['customerID'];
@@ -88,7 +88,7 @@ if(isset($_GET['del_dep'])) {
         mysqli_query($con, "UPDATE outstand SET amount = amount - $amount, balance = balance + $amount WHERE customerID='$custID'");
         
         // Delete the deposit
-        mysqli_query($con, "DELETE FROM deposit_history WHERE id='$dep_id'");
+        mysqli_query($con, "UPDATE deposit_history SET deleted_flag = 1, sync_status = 'pending' WHERE id='$dep_id'");
         
         echo "<script>alert('Deposit deleted successfully'); window.location.href='view-customer?id=$did';</script>";
         exit;
@@ -238,7 +238,7 @@ if(isset($_GET['del_dep'])) {
                                         <?php
                                         $date = date('Y-m-d');
                                             $facilityID = $_SESSION['facilityID'];
-                                        $sql=mysqli_query($con,"select * from orders where customerID='$did'  and facilityID ='$facilityID' $date_filter_orders ORDER BY creation DESC");
+                                        $sql=mysqli_query($con,"select * from orders where customerID='$did'  and facilityID ='$facilityID' AND deleted_flag = 0 $date_filter_orders ORDER BY creation DESC");
                                         $cnt = 1;
                                         $currentOrderID = null;
                                         $discountShown = false;
@@ -319,10 +319,10 @@ if(isset($_GET['del_dep'])) {
                                             // Calculate running balances dynamically
                                             $history_deposits = [];
                                             // We need to fetch in ASC order to calculate running balance forward
-                                            $running_q = mysqli_query($con, "SELECT * FROM deposit_history WHERE customerID='$did' $date_filter_deposits ORDER BY deposit_date ASC, id ASC");
+                                            $running_q = mysqli_query($con, "SELECT * FROM deposit_history WHERE customerID='$did' AND deleted_flag = 0 $date_filter_deposits ORDER BY deposit_date ASC, id ASC");
                                             
                                             // Calculate footer total for filtered view
-                                            $filtered_total_q = mysqli_query($con, "SELECT SUM(amount) as total FROM deposit_history WHERE customerID='$did' $date_filter_deposits");
+                                            $filtered_total_q = mysqli_query($con, "SELECT SUM(amount) as total FROM deposit_history WHERE customerID='$did' AND deleted_flag = 0 $date_filter_deposits");
                                             $filtered_total_data = mysqli_fetch_array($filtered_total_q);
                                             $filtered_total_amount = $filtered_total_data['total'] ?? 0;
                                             

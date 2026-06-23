@@ -11,7 +11,7 @@ else
 {
     if(isset($_GET['del']))
       {
-              mysqli_query($con,"delete from customers where id = '".$_GET['id']."'");
+              mysqli_query($con,"UPDATE customers SET deleted_flag = 1, sync_status = 'pending' WHERE id = '".$_GET['id']."'");
             
 
       }
@@ -159,11 +159,11 @@ else
                                     <div class="acc-action">
                                          <?php
                                          if ($facilityID) {
-                                             $order_query = $con->query("SELECT SUM(CAST(subtotal AS DECIMAL(15,2))) as 'total' FROM orders WHERE DATE(creation) BETWEEN '$from_date' AND '$to_date' AND facilityID='$facilityID'");
-                                             $r_query = $con->query("SELECT SUM(debt) as 'debt' FROM (SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders WHERE DATE(creation) BETWEEN '$from_date' AND '$to_date' AND facilityID='$facilityID' AND CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) GROUP BY orderId) as t");
+                                             $order_query = $con->query("SELECT SUM(CAST(subtotal AS DECIMAL(15,2))) as 'total' FROM orders WHERE deleted_flag = 0 AND DATE(creation) BETWEEN '$from_date' AND '$to_date' AND facilityID='$facilityID'");
+                                             $r_query = $con->query("SELECT SUM(debt) as 'debt' FROM (SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders WHERE deleted_flag = 0 AND DATE(creation) BETWEEN '$from_date' AND '$to_date' AND facilityID='$facilityID' AND CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) GROUP BY orderId) as t");
                                          } else {
-                                             $order_query = $con->query("SELECT SUM(CAST(subtotal AS DECIMAL(15,2))) as 'total' FROM orders WHERE DATE(creation) BETWEEN '$from_date' AND '$to_date'");
-                                             $r_query = $con->query("SELECT SUM(debt) as 'debt' FROM (SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders WHERE DATE(creation) BETWEEN '$from_date' AND '$to_date' AND CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) GROUP BY orderId) as t");
+                                             $order_query = $con->query("SELECT SUM(CAST(subtotal AS DECIMAL(15,2))) as 'total' FROM orders WHERE deleted_flag = 0 AND DATE(creation) BETWEEN '$from_date' AND '$to_date'");
+                                             $r_query = $con->query("SELECT SUM(debt) as 'debt' FROM (SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders WHERE deleted_flag = 0 AND DATE(creation) BETWEEN '$from_date' AND '$to_date' AND CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) GROUP BY orderId) as t");
                                          }
                                          $row = $order_query->fetch_array();
                                          $r_row = $r_query->fetch_array();
@@ -189,9 +189,9 @@ else
                                      <div class="acc-action">
                                          <?php
                                          if ($facilityID) {
-                                             $r_query = $con->query("SELECT SUM(debt) as 'debt' FROM (SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders WHERE DATE(creation) BETWEEN '$from_date' AND '$to_date' AND facilityID='$facilityID' AND CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) GROUP BY orderId) as t");
+                                             $r_query = $con->query("SELECT SUM(debt) as 'debt' FROM (SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders WHERE deleted_flag = 0 AND DATE(creation) BETWEEN '$from_date' AND '$to_date' AND facilityID='$facilityID' AND CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) GROUP BY orderId) as t");
                                          } else {
-                                             $r_query = $con->query("SELECT SUM(debt) as 'debt' FROM (SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders WHERE DATE(creation) BETWEEN '$from_date' AND '$to_date' AND CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) GROUP BY orderId) as t");
+                                             $r_query = $con->query("SELECT SUM(debt) as 'debt' FROM (SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders WHERE deleted_flag = 0 AND DATE(creation) BETWEEN '$from_date' AND '$to_date' AND CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) GROUP BY orderId) as t");
                                          }
                                          $r_row = $r_query->fetch_array();
                                          ?>
@@ -210,28 +210,28 @@ else
                 if ($facilityID) {
                     $cashQuery = "SELECT SUM(cash) as cash_total FROM (
                                     SELECT orderId, cash FROM orders
-                                    WHERE DATE(creation) BETWEEN '$from_date' AND '$to_date'
+                                    WHERE deleted_flag = 0 AND DATE(creation) BETWEEN '$from_date' AND '$to_date'
                                     AND facilityID = '$facilityID'
                                     GROUP BY orderId
                                 ) as unique_orders";
 
                     $posQuery = "SELECT SUM(pos) as pos_total FROM (
                                     SELECT orderId, pos FROM orders
-                                    WHERE DATE(creation) BETWEEN '$from_date' AND '$to_date'
+                                    WHERE deleted_flag = 0 AND DATE(creation) BETWEEN '$from_date' AND '$to_date'
                                     AND facilityID = '$facilityID'
                                     GROUP BY orderId
                                 ) as unique_orders";
 
                     $transferQuery = "SELECT SUM(transfer) as transfer_total FROM (
                                         SELECT orderId, transfer FROM orders
-                                        WHERE DATE(creation) BETWEEN '$from_date' AND '$to_date'
+                                        WHERE deleted_flag = 0 AND DATE(creation) BETWEEN '$from_date' AND '$to_date'
                                         AND facilityID = '$facilityID'
                                         GROUP BY orderId
                                     ) as unique_orders";
 
                     $changeQuery = "SELECT SUM(change_given) as change_total FROM (
                                         SELECT orderId, change_given FROM orders
-                                        WHERE DATE(creation) BETWEEN '$from_date' AND '$to_date'
+                                        WHERE deleted_flag = 0 AND DATE(creation) BETWEEN '$from_date' AND '$to_date'
                                         AND facilityID = '$facilityID'
                                         GROUP BY orderId
                                     ) as unique_orders";
@@ -240,25 +240,25 @@ else
                 } else {
                     $cashQuery = "SELECT SUM(cash) as cash_total FROM (
                                     SELECT orderId, cash FROM orders
-                                    WHERE DATE(creation) BETWEEN '$from_date' AND '$to_date'
+                                    WHERE deleted_flag = 0 AND DATE(creation) BETWEEN '$from_date' AND '$to_date'
                                     GROUP BY orderId
                                 ) as unique_orders";
 
                     $posQuery = "SELECT SUM(pos) as pos_total FROM (
                                     SELECT orderId, pos FROM orders
-                                    WHERE DATE(creation) BETWEEN '$from_date' AND '$to_date'
+                                    WHERE deleted_flag = 0 AND DATE(creation) BETWEEN '$from_date' AND '$to_date'
                                     GROUP BY orderId
                                 ) as unique_orders";
 
                     $transferQuery = "SELECT SUM(transfer) as transfer_total FROM (
                                         SELECT orderId, transfer FROM orders
-                                        WHERE DATE(creation) BETWEEN '$from_date' AND '$to_date'
+                                        WHERE deleted_flag = 0 AND DATE(creation) BETWEEN '$from_date' AND '$to_date'
                                         GROUP BY orderId
                                 ) as unique_orders";
 
                     $changeQuery = "SELECT SUM(change_given) as change_total FROM (
                                         SELECT orderId, change_given FROM orders
-                                        WHERE DATE(creation) BETWEEN '$from_date' AND '$to_date'
+                                        WHERE deleted_flag = 0 AND DATE(creation) BETWEEN '$from_date' AND '$to_date'
                                         GROUP BY orderId
                                 ) as unique_orders";
 
@@ -328,9 +328,9 @@ else
                         <div class="widget-content widget-content-area br-6">
                         <?php
                             if($facilityID){
-                            $sql = mysqli_query($con, "SELECT * FROM orders WHERE DATE(creation) BETWEEN '$from_date' AND '$to_date' AND facilityID='$facilityID' ORDER BY orderID DESC, creation DESC");
+                            $sql = mysqli_query($con, "SELECT * FROM orders WHERE deleted_flag = 0 AND DATE(creation) BETWEEN '$from_date' AND '$to_date' AND facilityID='$facilityID' ORDER BY orderID DESC, creation DESC");
                             }else{
-                            $sql = mysqli_query($con, "SELECT * FROM orders WHERE DATE(creation) BETWEEN '$from_date' AND '$to_date' ORDER BY orderID DESC, creation DESC");
+                            $sql = mysqli_query($con, "SELECT * FROM orders WHERE deleted_flag = 0 AND DATE(creation) BETWEEN '$from_date' AND '$to_date' ORDER BY orderID DESC, creation DESC");
                             }
                             $orders = [];
                             while($row = mysqli_fetch_assoc($sql)) {

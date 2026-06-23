@@ -63,6 +63,7 @@ include('../assets/mashaAllah/gyada.php');
             </ul>
         </header>
     </div>
+    <script src="../assets/js/auto_sync.js"></script>
 
 
 

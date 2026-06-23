@@ -32,7 +32,7 @@ $error="Something went wrong. Please try again";
 }
 if(isset($_GET['del']))
       {
-              mysqli_query($con,"delete from customers where id = '".$_GET['id']."'");
+              mysqli_query($con,"update customers set deleted_flag = 1, sync_status = 'pending' where id = '".$_GET['id']."'");
             
 
       }
@@ -125,7 +125,7 @@ if(isset($_GET['del']))
                                 <tbody>
                                  <?php
      $facilityID = $_SESSION['facilityID'];
-$sql=mysqli_query($con,"select * from customers");
+$sql=mysqli_query($con,"select * from customers where deleted_flag = 0");
 $cnt=1;
 while($row=mysqli_fetch_array($sql))
 {

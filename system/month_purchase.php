@@ -11,7 +11,7 @@ else
 {
     if(isset($_GET['del']))
       {
-              mysqli_query($con,"delete from purchase_history where id = '".$_GET['id']."'");
+              mysqli_query($con,"UPDATE purchase_history SET deleted_flag = 1, sync_status = 'pending' WHERE id = '".$_GET['id']."'");
             
 
       }
@@ -115,7 +115,7 @@ else
                                     <div class="acc-action">
                                            <?php
                       $facilityID = $_SESSION['facilityID'];
-                  $x_query = $con->query("SELECT SUM(total_cost) as 'selling' FROM purchase_history where DATE(purchase_date) BETWEEN '$from_date' AND '$to_date' and facilityID='$facilityID'");
+                  $x_query = $con->query("SELECT SUM(total_cost) as 'selling' FROM purchase_history where deleted_flag = 0 and DATE(purchase_date) BETWEEN '$from_date' AND '$to_date' and facilityID='$facilityID'");
 $x_row = $x_query->fetch_array();
 $real = $x_row['selling'];
 ?>
@@ -155,7 +155,7 @@ $real = $x_row['selling'];
                                 <tbody>
                                   <?php
      $facilityID = $_SESSION['facilityID'];
-$sql=mysqli_query($con,"select * from purchase_history where DATE(purchase_date) BETWEEN '$from_date' AND '$to_date' and facilityID='$facilityID'");
+$sql=mysqli_query($con,"select * from purchase_history where deleted_flag = 0 and DATE(purchase_date) BETWEEN '$from_date' AND '$to_date' and facilityID='$facilityID'");
 
 $cnt=1;
 while($row=mysqli_fetch_array($sql))

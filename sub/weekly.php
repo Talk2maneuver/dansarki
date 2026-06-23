@@ -7,7 +7,7 @@ if(strlen($_SESSION['email'])==0) {
     header('location:../index.php');
 } else {
     if(isset($_GET['del'])) {
-        mysqli_query($con,"delete from customers where id = '".$_GET['id']."'");
+        mysqli_query($con,"UPDATE customers SET deleted_flag = 1, sync_status = 'pending' WHERE id = '".$_GET['id']."'");
     }
 }
 ?>
@@ -116,9 +116,9 @@ if(strlen($_SESSION['email'])==0) {
                                     </div>
                                     <div class="acc-action">
                                         <?php
-                                        $order_query = $con->query("SELECT SUM(subtotal) as 'total' FROM orders WHERE DATE(creation)='$selected_date'");
+                                        $order_query = $con->query("SELECT SUM(subtotal) as 'total' FROM orders WHERE deleted_flag = 0 AND DATE(creation)='$selected_date'");
                                         $row = $order_query->fetch_array();
-                                        $r_query = $con->query("SELECT SUM(balance) as 'debt' FROM outstand WHERE DATE(creation)='$selected_date'");
+                                        $r_query = $con->query("SELECT SUM(balance) as 'debt' FROM outstand WHERE deleted_flag = 0 AND DATE(creation)='$selected_date'");
                                         $r_row = $r_query->fetch_array();
                                         $real = $row['total'] - $r_row['debt'];
                                         ?>
@@ -139,7 +139,7 @@ if(strlen($_SESSION['email'])==0) {
                                     </div>
                                     <div class="acc-action">
                                         <?php
-                                        $r_query = $con->query("SELECT SUM(balance) as 'debt' FROM outstand WHERE DATE(creation)='$selected_date'");
+                                        $r_query = $con->query("SELECT SUM(balance) as 'debt' FROM outstand WHERE deleted_flag = 0 AND DATE(creation)='$selected_date'");
                                         $r_row = $r_query->fetch_array();
                                         ?>
                                         <h1 style="color:white;"><b>₦<?php echo number_format($r_row['debt']); ?></b></h1>
@@ -154,19 +154,19 @@ if(strlen($_SESSION['email'])==0) {
                 // Payment method queries modified for daily
                 $cashQuery = "SELECT SUM(cash) as cash_total FROM (
                                     SELECT orderId, cash FROM orders
-                                    WHERE DATE(creation) = '$selected_date'
+                                    WHERE deleted_flag = 0 AND DATE(creation) = '$selected_date'
                                     GROUP BY orderId
                                 ) as unique_orders";
 
                 $posQuery = "SELECT SUM(pos) as pos_total FROM (
                                 SELECT orderId, pos FROM orders
-                                WHERE DATE(creation) = '$selected_date'
+                                WHERE deleted_flag = 0 AND DATE(creation) = '$selected_date'
                                 GROUP BY orderId
                             ) as unique_orders";
 
                 $transferQuery = "SELECT SUM(transfer) as transfer_total FROM (
                                         SELECT orderId, transfer FROM orders
-                                        WHERE DATE(creation) = '$selected_date'
+                                        WHERE deleted_flag = 0 AND DATE(creation) = '$selected_date'
                                         GROUP BY orderId
                                     ) as unique_orders";
 
@@ -217,7 +217,7 @@ if(strlen($_SESSION['email'])==0) {
                     <div class="col-xl-12 col-lg-12 col-sm-12 layout-spacing">
                         <div class="widget-content widget-content-area br-6">
                             <?php
-                            $sql = mysqli_query($con, "SELECT orders.*, customers.name as linked_customer_name FROM orders LEFT JOIN customers ON orders.customerID = customers.id WHERE DATE(orders.creation) = '$selected_date' ORDER BY orders.orderID DESC, orders.creation DESC");
+                            $sql = mysqli_query($con, "SELECT orders.*, customers.name as linked_customer_name FROM orders LEFT JOIN customers ON orders.customerID = customers.id WHERE orders.deleted_flag = 0 AND DATE(orders.creation) = '$selected_date' ORDER BY orders.orderID DESC, orders.creation DESC");
                             $orders = [];
                             while($row = mysqli_fetch_assoc($sql)) {
                                 $orderID = $row['orderID'];

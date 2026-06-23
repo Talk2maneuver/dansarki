@@ -12,7 +12,7 @@ else
     
   if(isset($_GET['del']))
       {
-              mysqli_query($con,"delete from stocks where id = '".$_GET['id']."'");
+              mysqli_query($con,"UPDATE stocks SET deleted_flag = 1, sync_status = 'pending' WHERE id = '".$_GET['id']."'");
             
 
       }
@@ -92,7 +92,7 @@ else
                                 <tbody>
                                     <?php
   $facilityID = $_SESSION['facilityID'];
-$sql=mysqli_query($con,"select * from stocks where quantity = 0 and facilityID='$facilityID'");
+$sql=mysqli_query($con,"select * from stocks where quantity = 0 and deleted_flag = 0 and facilityID='$facilityID'");
 $cnt=1;
 while($row=mysqli_fetch_array($sql))
 {
