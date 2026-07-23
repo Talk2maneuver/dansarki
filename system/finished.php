@@ -99,14 +99,10 @@ else
                                 <thead>
                                     <tr>
                                         <th>S/N</th>
-                    <th>Branch ID</th>
-                    <th>Item Name</th>
-                    
-                    <th>Quantity</th>
-                   
-          
-                    <th>Action</th>
-                                       
+                                        <th class="d-none d-md-table-cell">Branch ID</th>
+                                        <th>Item Name</th>
+                                        <th>Quantity</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -128,27 +124,17 @@ $cnt=1;
 while($row=mysqli_fetch_array($sql))
 {
 ?>
-                         <tr>
-                        <td class="center"><?php echo $cnt;?>.</td>
-                        <td class="hidden-xs"><?php echo $row['facilityID'];?></td>
-                        <td class="hidden-xs"><?php echo $row['name'];?></td>
-                         <td class="hidden-xs"><?php echo $row['quantity'];?></td>
-               
-                       
-                        </td>
-                        
+                          <tr>
+                         <td class="center"><?php echo $cnt;?>.</td>
+                         <td class="d-none d-md-table-cell"><?php echo $row['facilityID'];?></td>
+                         <td><?php echo $row['name'];?></td>
+                         <td><?php echo $row['quantity'];?></td>
                          <td>
-                        <div class="visible-md visible-lg hidden-sm hidden-xs">
-                        
-
-                      
-
-                    
-  <a href="finished?id=<?php echo $row['id']?>&del=delete" onClick="return confirm('Are you sure you want to delete?')"class="btn btn-danger" tooltip-placement="top" tooltip="Remove">Delete</a>
-                        </div>
-                       
-                        </div></td>
-                      </tr>
+                         <div>
+                         <a href="finished?id=<?php echo $row['id']?>&del=delete" onClick="return confirm('Are you sure you want to delete?')"class="btn btn-danger btn-sm" tooltip-placement="top" tooltip="Remove">Delete</a>
+                         </div>
+                         </td>
+                       </tr>
 
                       <?php 
 $cnt=$cnt+1; 

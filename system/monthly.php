@@ -115,7 +115,7 @@ else
                 <!-- Date Filter Form -->
                 <div class="filter-container mt-4">
                     <form method="GET" action="">
-                        <div class="row">
+                        <div class="row align-items-end">
                             <div class="col-md-4">
                                 <label for="from_date">From Date:</label>
                                 <input type="date" class="form-control" id="from_date" name="from_date" 
@@ -126,9 +126,9 @@ else
                                 <input type="date" class="form-control" id="to_date" name="to_date" 
                                        value="<?php echo isset($_GET['to_date']) ? $_GET['to_date'] : date('Y-m-t'); ?>">
                             </div>
-                            <div class="col-md-4">
-                                <button type="submit" class="btn btn-primary" style="margin-top: 32px;">Filter</button>
-                                <a href="monthly" class="btn btn-danger" style="margin-top: 32px;">Reset</a>
+                            <div class="col-md-4 mt-3 mt-md-0">
+                                <button type="submit" class="btn btn-primary">Filter</button>
+                                <a href="monthly" class="btn btn-danger">Reset</a>
                             </div>
                         </div>
                     </form>
@@ -400,11 +400,17 @@ else
                                         <td><?= htmlspecialchars($item['quantity']); ?></td>
                                         <td>₦<?= number_format($item['price']); ?></td>
                                         <td>₦<?= number_format($item['subtotal']); ?></td>
-                                        <td>₦<?= number_format($order['discount']); ?></td>
+                                        <?php 
+                                            $discountVal = $order['discount'];
+                                            $cashVal = $order['cash'];
+                                            $posVal = $order['pos'];
+                                            $transferVal = $order['transfer'];
+                                        ?>
+                                        <td>₦<?= number_format($discountVal); ?><?php if ($discountVal > 0) { echo '<span style="display: none;"> discount ' . $discountVal . '</span>'; } ?></td>
                                         <td>₦<?= number_format($finalAmount); ?></td>
-                                        <td>₦<?= number_format($order['cash']); ?></td>
-                                        <td>₦<?= number_format($order['pos']); ?></td>
-                                        <td>₦<?= number_format($order['transfer']); ?></td>
+                                        <td>₦<?= number_format($cashVal); ?><?php if ($cashVal > 0) { echo '<span style="display: none;"> cash ' . $cashVal . '</span>'; } ?></td>
+                                        <td>₦<?= number_format($posVal); ?><?php if ($posVal > 0) { echo '<span style="display: none;"> pos ' . $posVal . '</span>'; } ?></td>
+                                        <td>₦<?= number_format($transferVal); ?><?php if ($transferVal > 0) { echo '<span style="display: none;"> transfer ' . $transferVal . '</span>'; } ?></td>
 
                                         <td><?= htmlspecialchars($order['creation']); ?></td>
                                         <td>

@@ -98,7 +98,7 @@ if (strlen($_SESSION['email']) == 0) {
         $change_given = $_POST['change'];
         
         // Create order
-        $orderID = rand(00000, 99999);
+        $orderID = time() . rand(10, 99);
         $_SESSION['orderID'] = $orderID;
         
         $sql = mysqli_query($con, "INSERT INTO orders(

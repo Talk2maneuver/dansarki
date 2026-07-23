@@ -19,7 +19,7 @@ if (strlen($_SESSION['email']) == 0) {
         $stock_query = mysqli_query($con, "SELECT quantity, name FROM stocks WHERE id='$stockId'");
         $stock_row = mysqli_fetch_assoc($stock_query);
         $available_stock = $stock_row['quantity'];
-        $item = $stock_row['name'];
+        $item = mysqli_real_escape_string($con, $stock_row['name']);
 
         // Check if requested quantity is greater than available stock
         if ($quantity > $available_stock) {
@@ -150,7 +150,7 @@ if (strlen($_SESSION['email']) == 0) {
         $change_given = $_POST['change'];
         
         // Create order
-        $orderID = rand(00000, 99999);
+        $orderID = time() . rand(10, 99);
         $_SESSION['orderID'] = $orderID;
         
         $sql = mysqli_query($con, "INSERT INTO orders(
@@ -267,7 +267,7 @@ if (strlen($_SESSION['email']) == 0) {
             <div class="layout-px-spacing">
                 <div class="row layout-spacing">
                     <!-- Content -->
-                    <div class="col-xl-6 col-lg-6 col-md-5 col-sm-12 layout-top-spacing">
+                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 layout-top-spacing">
                         <div class="skills layout-spacing">
                             <div class="widget-content widget-content-area">
                                 <h3 class="">New Order</h3>
@@ -315,52 +315,57 @@ if (strlen($_SESSION['email']) == 0) {
                         </div>
                     </div>
 
-                    <div class="col-xl-6 col-lg-6 col-md-5 col-sm-12 layout-top-spacing">
+                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 layout-top-spacing">
                         <div class="skills layout-spacing">
                             <div class="widget-content widget-content-area">
                                 <h3 class="">Cart</h3>
                                 <form method="POST">
-                                    <table id="sample-table-1" class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>S/N</th>
-                                                <th>Item</th>
-                                                <th>Price</th>
-                                                <th>Quantity</th>
-                                                <th>Subtotal (Gross)</th>
-                                                <th>Unit Disc.</th>
-                                                <th>Total (Net)</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            $facilityID = $_SESSION['facilityID'];
-                                            $staffID = $_SESSION['id'];
-                                            $sql = mysqli_query($con, "SELECT * FROM cart WHERE staffID='$staffID'");
-                                            $cnt = 1;
-                                            while ($row = mysqli_fetch_array($sql)) {
-                                            ?>
+                                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                        <table id="sample-table-1" class="table table-hover">
+                                            <thead>
                                                 <tr>
-                                                    <td class="center"><?php echo $cnt; ?>.</td>
-                                                    <td class="hidden-xs"><?php echo $row['item']; ?></td>
-                                                    <td><?php echo number_format($row['price']); ?></td>
-                                                    <td><?php echo number_format($row['quantity']); ?></td>
-                                                    <td><?php echo number_format($row['subtotal']); ?></td>
-                                                    <td><?php echo number_format($row['discount']); ?></td>
-                                                    <td><?php echo number_format(($row['price'] - $row['discount']) * $row['quantity']); ?></td>
-                                                    <td>
-                                                        <div class="visible-md visible-lg hidden-sm hidden-xs">
-                                                            <a href="index?id=<?php echo $row['id'] ?>&del=delete" onClick="return confirm('Are you sure you want to delete?')" class="btn btn-danger btn-xs tooltips" tooltip-placement="top" tooltip="Remove">Remove</a>
-                                                        </div>
-                                                    </td>
+                                                    <th>S/N</th>
+                                                    <th>Item</th>
+                                                    <th>Price</th>
+                                                    <th>Quantity</th>
+                                                    <th class="d-none d-sm-table-cell">Subtotal (Gross)</th>
+                                                    <th class="d-none d-sm-table-cell">Unit Disc.</th>
+                                                    <th>Total (Net)</th>
+                                                    <th>Action</th>
                                                 </tr>
-                                            <?php
-                                                $cnt++;
-                                            }
-                                            ?>
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                <?php
+                                                $facilityID = $_SESSION['facilityID'];
+                                                $staffID = $_SESSION['id'];
+                                                $sql = mysqli_query($con, "SELECT * FROM cart WHERE staffID='$staffID'");
+                                                $cnt = 1;
+                                                $total = 0;
+                                                while ($row = mysqli_fetch_array($sql)) {
+                                                    $item_total = ($row['price'] - $row['discount']) * $row['quantity'];
+                                                    $total += $item_total;
+                                                ?>
+                                                    <tr>
+                                                        <td class="center"><?php echo $cnt; ?>.</td>
+                                                        <td><?php echo $row['item']; ?></td>
+                                                        <td><?php echo number_format($row['price']); ?></td>
+                                                        <td><?php echo number_format($row['quantity']); ?></td>
+                                                        <td class="d-none d-sm-table-cell"><?php echo number_format($row['subtotal']); ?></td>
+                                                        <td class="d-none d-sm-table-cell"><?php echo number_format($row['discount']); ?></td>
+                                                        <td><?php echo number_format($item_total); ?></td>
+                                                        <td>
+                                                            <div>
+                                                                <a href="index?id=<?php echo $row['id'] ?>&del=delete" onClick="return confirm('Are you sure you want to delete?')" class="btn btn-danger btn-xs tooltips" tooltip-placement="top" tooltip="Remove">Remove</a>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                <?php
+                                                    $cnt++;
+                                                }
+                                                ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                     <br>
                                     <br>
                                 <h2>Total Price: ₦<?php echo number_format($total); ?></h2>

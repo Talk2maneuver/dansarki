@@ -21,13 +21,13 @@ if (strlen($_SESSION['email']) == 0) {
         // Fetch customer name
         $cust_query = $con->query("SELECT name FROM customers WHERE id='$customer'");
         $cust_row = $cust_query->fetch_array();
-        $customer_name = $cust_row['name'];
+        $customer_name = mysqli_real_escape_string($con, $cust_row['name']);
 
         // Check available stock
         $stock_query = mysqli_query($con, "SELECT quantity, name FROM stocks WHERE id='$stockId'");
         $stock_row = mysqli_fetch_assoc($stock_query);
         $available_stock = $stock_row['quantity'];
-        $item = $stock_row['name'];
+        $item = mysqli_real_escape_string($con, $stock_row['name']);
 
         // Check if requested quantity is greater than available stock
         if ($quantity > $available_stock) {

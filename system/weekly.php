@@ -94,7 +94,7 @@ if(strlen($_SESSION['email'])==0) {
                 <!-- Date Filter Form -->
                 <div class="filter-container">
                     <form method="GET" action="">
-                        <div class="row">
+                        <div class="row align-items-end">
                             <div class="col-md-4">
                                 <label for="from_date">From Date:</label>
                                 <input type="date" class="form-control" id="from_date" name="from_date" 
@@ -105,10 +105,10 @@ if(strlen($_SESSION['email'])==0) {
                                 <input type="date" class="form-control" id="to_date" name="to_date" 
                                        value="<?php echo isset($_GET['to_date']) ? $_GET['to_date'] : date('Y-m-d'); ?>">
                             </div>
-                            <div class="col-md-4">
-                                <button type="submit" class="btn btn-primary" style="margin-top: 32px;">Filter</button>
-                                <a href="weekly" class="btn btn-danger" style="margin-top: 32px;">Reset</a>
-                                <a href="sales_report?from_date=<?php echo $from_date; ?>&to_date=<?php echo $to_date; ?>" class="btn btn-info" style="margin-top: 32px;">View Sales Report</a>
+                            <div class="col-md-4 mt-3 mt-md-0">
+                                <button type="submit" class="btn btn-primary">Filter</button>
+                                <a href="weekly" class="btn btn-danger">Reset</a>
+                                <a href="sales_report?from_date=<?php echo $from_date; ?>&to_date=<?php echo $to_date; ?>" class="btn btn-info">View Sales Report</a>
                             </div>
                         </div>
                     </form>
@@ -356,11 +356,17 @@ if(strlen($_SESSION['email'])==0) {
                                         <td><?= htmlspecialchars($item['quantity']); ?></td>
                                         <td>₦<?= number_format($item['price']); ?></td>
                                         <td>₦<?= number_format($item['subtotal']); ?></td>
-                                        <td>₦<?= number_format(($item['item_discount'] * $item['quantity']) + $order['discount']); ?></td>
+                                        <?php 
+                                            $discountVal = ($item['item_discount'] * $item['quantity']) + $order['discount'];
+                                            $cashVal = $order['cash'];
+                                            $posVal = $order['pos'];
+                                            $transferVal = $order['transfer'];
+                                        ?>
+                                        <td>₦<?= number_format($discountVal); ?><?php if ($discountVal > 0) { echo '<span style="display: none;"> discount ' . $discountVal . '</span>'; } ?></td>
                                         <td>₦<?= number_format($finalAmount); ?></td>
-                                        <td>₦<?= number_format($order['cash']); ?></td>
-                                        <td>₦<?= number_format($order['pos']); ?></td>
-                                        <td>₦<?= number_format($order['transfer']); ?></td>
+                                        <td>₦<?= number_format($cashVal); ?><?php if ($cashVal > 0) { echo '<span style="display: none;"> cash ' . $cashVal . '</span>'; } ?></td>
+                                        <td>₦<?= number_format($posVal); ?><?php if ($posVal > 0) { echo '<span style="display: none;"> pos ' . $posVal . '</span>'; } ?></td>
+                                        <td>₦<?= number_format($transferVal); ?><?php if ($transferVal > 0) { echo '<span style="display: none;"> transfer ' . $transferVal . '</span>'; } ?></td>
 
                                         <td><?= htmlspecialchars($order['creation']); ?></td>
                                         <td>
@@ -531,41 +537,24 @@ if(strlen($_SESSION['email'])==0) {
                 buttons: [
                     { extend: 'copy', className: 'btn btn-sm' },
                     { extend: 'csv', className: 'btn btn-sm' },
-                    { 
-                        extend: 'excel', 
+                    {
+                        extend: 'excel',
                         className: 'btn btn-sm',
                         title: 'Dansarki General Enterprise Sales <?= date("Y-m-d"); ?>',
                         exportOptions: {
-                            columns: [3, 4, 5, 6, 7, 8, 9, 10, 11],
-                            format: {
-                                body: function(data, row, column, node) {
-                                    // Column index 2 is Order ID in system/weekly.php export
-                                    return column === 2 ? "\u200C" + data : data;
-                                }
-                            }
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
                         },
                         customize: function(xlsx) {
                             var sheet = xlsx.xl.worksheets['sheet1.xml'];
-                            
+
                             // Style 25 is thin border.
                             $('row c', sheet).attr('s', '25');
-                            
-                            // Target Order ID column (3rd column = 'C') and ensure it's treated as text
-                            $('row c[r^="C"]', sheet).each(function() {
-                                var cell = $(this);
-                                var r = cell.attr('r');
-                                if (r && r.match(/^C\d+$/)) {
-                                    cell.attr('t', 'inlineStr');
-                                    var val = cell.find('v').text();
-                                    cell.empty().append('<is><t>' + val + '</t></is>');
-                                }
-                            });
                         }
                     },
                     { extend: 'print', className: 'btn btn-sm' }
                 ]
             },
-            "order": [[6, "asc"]],
+            "order": [],
             "oLanguage": {
                 "oPaginate": { 
                     "sPrevious": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>', 

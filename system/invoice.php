@@ -42,6 +42,7 @@ $date_time = date("F j, Y, g:i a");
         .receipt-container {
             background: #fff;
             width: 80mm;
+            max-width: 100%;
             margin: 0 auto;
             padding: 10px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);

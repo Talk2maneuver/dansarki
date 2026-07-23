@@ -101,7 +101,7 @@ if (strlen($_SESSION['email']) == 0) {
                                     <tr>
                                         <th>S/N</th>
                                         <th>Branch Name</th>
-                                        <th>Branch Address</th>
+                                        <th class="d-none d-md-table-cell">Branch Address</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -114,12 +114,12 @@ if (strlen($_SESSION['email']) == 0) {
                                     ?>
                                         <tr>
                                             <td class="center"><?php echo $cnt; ?>.</td>
-                                            <td class="hidden-xs">
+                                            <td>
                                                 <a href="./?switch_branch=<?php echo $row['facilityID']; ?>">
                                                     <?php echo $row['name']; ?>
                                                 </a>
                                             </td>
-                                            <td class="hidden-xs"><?php echo $row['address']; ?></td>
+                                            <td class="d-none d-md-table-cell"><?php echo $row['address']; ?></td>
                                             <td>
                                                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editBranchModal<?php echo $row['id']; ?>">Edit</button>
                                                 <a href="branch?id=<?php echo $row['id']; ?>&del=delete" onClick="return confirm('Are you sure you want to delete?')" class="btn btn-danger">Delete</a>

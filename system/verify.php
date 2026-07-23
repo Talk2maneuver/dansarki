@@ -18,14 +18,14 @@ $invoice = isset($_GET['invoice']) ? $_GET['invoice'] : 0;
 
     if (isset($_POST['checkout']) && $invoice > 0) {
         try {
-            $checkQuery = "SELECT status FROM orders WHERE order_id = '$invoice' AND facilityID = '$facilityID'";
+            $checkQuery = "SELECT status FROM orders WHERE deleted_flag = 0 AND order_id = '$invoice' AND facilityID = '$facilityID'";
             $checkResult = mysqli_query($con, $checkQuery);
             $orderStatus = mysqli_fetch_assoc($checkResult);
 
             if ($orderStatus && strtolower($orderStatus['status']) === 'completed') {
                 echo "<script>alert('This order has already been issued.');</script>";
             } else {
-                $updateQuery = "UPDATE orders SET status = 'completed', issuedById = '$staffID', issuedByName = '$issuedByName' WHERE order_id = '$invoice' AND facilityID = '$facilityID'";
+                $updateQuery = "UPDATE orders SET status = 'completed', issuedById = '$staffID', issuedByName = '$issuedByName' WHERE deleted_flag = 0 AND order_id = '$invoice' AND facilityID = '$facilityID'";
                 mysqli_query($con, $updateQuery);
                 echo "<script>alert('Order checked out successfully!');</script>";
             }
@@ -137,39 +137,39 @@ $invoice = isset($_GET['invoice']) ? $_GET['invoice'] : 0;
                                             <?php
                                             $facilityID = $_SESSION['facilityID'];
                                             $staffID = $_SESSION['id'];
-                                            $sql = mysqli_query($con, "SELECT * FROM orders WHERE orderID='$invoice' AND facilityID='$facilityID'");
-                                            $cnt = 1;
-                                            while ($row = mysqli_fetch_array($sql)) {
-                                            ?>
-                                                <tr>
-                                                    <td class="center"><?php echo $cnt; ?>.</td>
-                                                    <td class="hidden-xs"><?php echo $row['item']; ?></td>
-                                                    <td><?php echo number_format($row['price']); ?></td>
-                                                    <td><?php echo $row['quantity']; ?></td>
-                                                    <td><?php echo number_format($row['subtotal']); ?></td>
-                                                </tr>
-                                            <?php
-                                                $cnt++;
-                                            }
-                                            ?>
-                                        </tbody>
-                                    </table>
-                                    <br>
-                                    <br>
-                                    <?php
-                                    $staffID = $_SESSION['id'];
-                                    $facilityID = $_SESSION['facilityID'];
-                                    $order_query = $con->query("SELECT SUM(subtotal) as total FROM orders WHERE orderID='$invoice' AND facilityID='$facilityID'");
-                                    $order_row = $order_query->fetch_array();
-                                    $total = $order_row['total'];
-                                    ?>
-                                    <h2>Total Amount: ₦<?php echo number_format($total); ?></h2>
-                               
-                                    <h4>Order Details</h4>
-                                    <?php
-                                    if ($invoice > 0) {
-                                        $orderQuery = "SELECT * FROM orders WHERE orderID = '$invoice' AND facilityID = '$facilityID'";
-                                        $orderResult = mysqli_query($con, $orderQuery);
+                                             $sql = mysqli_query($con, "SELECT * FROM orders WHERE deleted_flag = 0 AND orderID='$invoice' AND facilityID='$facilityID'");
+                                             $cnt = 1;
+                                             while ($row = mysqli_fetch_array($sql)) {
+                                             ?>
+                                                 <tr>
+                                                     <td class="center"><?php echo $cnt; ?>.</td>
+                                                     <td class="hidden-xs"><?php echo $row['item']; ?></td>
+                                                     <td><?php echo number_format($row['price']); ?></td>
+                                                     <td><?php echo $row['quantity']; ?></td>
+                                                     <td><?php echo number_format($row['subtotal']); ?></td>
+                                                 </tr>
+                                             <?php
+                                                 $cnt++;
+                                             }
+                                             ?>
+                                         </tbody>
+                                     </table>
+                                     <br>
+                                     <br>
+                                     <?php
+                                     $staffID = $_SESSION['id'];
+                                     $facilityID = $_SESSION['facilityID'];
+                                     $order_query = $con->query("SELECT SUM(subtotal) as total FROM orders WHERE deleted_flag = 0 AND orderID='$invoice' AND facilityID='$facilityID'");
+                                     $order_row = $order_query->fetch_array();
+                                     $total = $order_row['total'];
+                                     ?>
+                                     <h2>Total Amount: ₦<?php echo number_format($total); ?></h2>
+                                
+                                     <h4>Order Details</h4>
+                                     <?php
+                                     if ($invoice > 0) {
+                                         $orderQuery = "SELECT * FROM orders WHERE deleted_flag = 0 AND orderID = '$invoice' AND facilityID = '$facilityID'";
+                                         $orderResult = mysqli_query($con, $orderQuery);
                                         if (mysqli_num_rows($orderResult) > 0) {
                                             $order = mysqli_fetch_assoc($orderResult);
                                             ?>
