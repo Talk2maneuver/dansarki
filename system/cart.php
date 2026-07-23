@@ -94,7 +94,7 @@ if (isset($_POST['checkout'])) {
     $facilityID = $_SESSION['facilityID'];
     $staffID = $_SESSION['id'];
     $staff = $_SESSION['name'];
-    $orderID = rand(00000, 99999);
+    $orderID = time() . rand(10, 99);
     $_SESSION['orderID'] = $orderID;
     
     $isCreditOrder = true; // Since we're in debt_cart context

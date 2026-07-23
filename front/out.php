@@ -169,15 +169,15 @@ else
                                     
                                     // Calculate dynamic balance for this customer to match view-customer
                                     $facilityID = $_SESSION['facilityID'];
-                                    $cust_sales_query = mysqli_query($con, "SELECT SUM(CAST(subtotal AS DECIMAL(10,2)) - (CAST(item_discount AS DECIMAL(10,2)) * CAST(quantity AS INT))) as total_sales FROM orders WHERE customerID='$cid' AND facilityID='$facilityID'");
+                                    $cust_sales_query = mysqli_query($con, "SELECT SUM(CAST(subtotal AS DECIMAL(10,2)) - (CAST(item_discount AS DECIMAL(10,2)) * CAST(quantity AS INT))) as total_sales FROM orders WHERE deleted_flag = 0 AND customerID='$cid' AND facilityID='$facilityID'");
                                     $cust_sales_data = mysqli_fetch_array($cust_sales_query);
                                     $cust_total_sales = $cust_sales_data['total_sales'] ?? 0;
 
-                                    $cust_discount_query = mysqli_query($con, "SELECT SUM(CAST(discount AS DECIMAL(10,2))) as total_discount FROM (SELECT orderID, discount FROM orders WHERE customerID='$cid' AND facilityID='$facilityID' GROUP BY orderID) as t");
+                                    $cust_discount_query = mysqli_query($con, "SELECT SUM(CAST(discount AS DECIMAL(10,2))) as total_discount FROM (SELECT orderID, discount FROM orders WHERE deleted_flag = 0 AND customerID='$cid' AND facilityID='$facilityID' GROUP BY orderID) as t");
                                     $cust_discount_data = mysqli_fetch_array($cust_discount_query);
                                     $cust_total_discount = $cust_discount_data['total_discount'] ?? 0;
 
-                                    $cust_initial_payment_query = mysqli_query($con, "SELECT SUM(CAST(amount_paid AS DECIMAL(10,2))) as total_initial_paid FROM (SELECT orderID, amount_paid FROM orders WHERE customerID='$cid' AND facilityID='$facilityID' GROUP BY orderID) as t");
+                                    $cust_initial_payment_query = mysqli_query($con, "SELECT SUM(CAST(amount_paid AS DECIMAL(10,2))) as total_initial_paid FROM (SELECT orderID, amount_paid FROM orders WHERE deleted_flag = 0 AND customerID='$cid' AND facilityID='$facilityID' GROUP BY orderID) as t");
                                     $cust_initial_payment_data = mysqli_fetch_array($cust_initial_payment_query);
                                     $cust_total_initial_paid = $cust_initial_payment_data['total_initial_paid'] ?? 0;
 
@@ -188,24 +188,24 @@ else
                                     $cust_actual_balance = $cust_total_sales - $cust_total_discount - $cust_total_initial_paid - $cust_actual_total_deposits;
                                 ?>
                                  <tr>
-                                    <td class="center"><?php echo $cnt;?>.</td>
-                                    <td class="hidden-xs"><?php echo $row['Customer'];?></td>
-                                    <td class="hidden-xs">₦<?php echo number_format($cust_actual_total_deposits);?></td>
-                                    <td>
-                                        <?php if ($cust_actual_balance == 0): ?>
-                                            <span class="badge badge-success">Clear</span>
-                                        <?php elseif ($cust_actual_balance < 0): ?>
-                                            <span class="badge badge-info">Credit: ₦<?php echo number_format(abs($cust_actual_balance)); ?></span>
-                                        <?php else: ?>
-                                            <span class="text-danger" style="font-weight: bold;">₦<?php echo number_format($cust_actual_balance); ?></span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <div class="visible-md visible-lg hidden-sm hidden-xs">
-                                            <a href="deposit?id=<?php echo $row['customerID'];?>" class="btn btn-primary">Add Deposit</a>
-                                        </div>
-                                    </td>
-                                  </tr>
+                                     <td class="center"><?php echo $cnt;?>.</td>
+                                     <td><?php echo $row['Customer'];?></td>
+                                     <td>₦<?php echo number_format($cust_actual_total_deposits);?></td>
+                                     <td>
+                                         <?php if ($cust_actual_balance == 0): ?>
+                                             <span class="badge badge-success">Clear</span>
+                                         <?php elseif ($cust_actual_balance < 0): ?>
+                                             <span class="badge badge-info">Credit: ₦<?php echo number_format(abs($cust_actual_balance)); ?></span>
+                                         <?php else: ?>
+                                             <span class="text-danger" style="font-weight: bold;">₦<?php echo number_format($cust_actual_balance); ?></span>
+                                         <?php endif; ?>
+                                     </td>
+                                     <td>
+                                         <div>
+                                             <a href="deposit?id=<?php echo $row['customerID'];?>" class="btn btn-primary btn-sm">Add Deposit</a>
+                                         </div>
+                                     </td>
+                                   </tr>
                                 <?php 
                                 $cnt = $cnt + 1; 
                                 }

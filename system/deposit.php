@@ -21,21 +21,21 @@ if (!$outstanding_data) {
 }
 
 // Calculate correct total deposits from history (DYNAMIC)
-$total_deposits_query = mysqli_query($con, "SELECT SUM(amount) as total FROM deposit_history WHERE customerID='$did'");
+$total_deposits_query = mysqli_query($con, "SELECT SUM(amount) as total FROM deposit_history WHERE customerID='$did' AND deleted_flag = 0");
 $total_deposits_data = mysqli_fetch_array($total_deposits_query);
 $actual_total_deposits = $total_deposits_data['total'] ?? 0;
 
 // Calculate accurate outstanding balance (DYNAMIC)
 $facilityID = $_SESSION['facilityID'];
-$sales_query = mysqli_query($con, "SELECT SUM(CAST(subtotal AS DECIMAL(10,2)) - (CAST(item_discount AS DECIMAL(10,2)) * CAST(quantity AS INT))) as total_sales FROM orders WHERE customerID='$did' AND facilityID='$facilityID'");
+$sales_query = mysqli_query($con, "SELECT SUM(CAST(subtotal AS DECIMAL(10,2)) - (CAST(item_discount AS DECIMAL(10,2)) * CAST(quantity AS INT))) as total_sales FROM orders WHERE customerID='$did' AND facilityID='$facilityID' AND deleted_flag = 0");
 $sales_data = mysqli_fetch_array($sales_query);
 $total_sales = $sales_data['total_sales'] ?? 0;
 
-$discount_query = mysqli_query($con, "SELECT SUM(CAST(discount AS DECIMAL(10,2))) as total_discount FROM (SELECT orderID, discount FROM orders WHERE customerID='$did' AND facilityID='$facilityID' GROUP BY orderID) as t");
+$discount_query = mysqli_query($con, "SELECT SUM(CAST(discount AS DECIMAL(10,2))) as total_discount FROM (SELECT orderID, discount FROM orders WHERE customerID='$did' AND facilityID='$facilityID' AND deleted_flag = 0 GROUP BY orderID) as t");
 $discount_data = mysqli_fetch_array($discount_query);
 $total_discount = $discount_data['total_discount'] ?? 0;
 
-$initial_payment_query = mysqli_query($con, "SELECT SUM(CAST(amount_paid AS DECIMAL(10,2))) as total_initial_paid FROM (SELECT orderID, amount_paid FROM orders WHERE customerID='$did' AND facilityID='$facilityID' GROUP BY orderID) as t");
+$initial_payment_query = mysqli_query($con, "SELECT SUM(CAST(amount_paid AS DECIMAL(10,2))) as total_initial_paid FROM (SELECT orderID, amount_paid FROM orders WHERE customerID='$did' AND facilityID='$facilityID' AND deleted_flag = 0 GROUP BY orderID) as t");
 $initial_payment_data = mysqli_fetch_array($initial_payment_query);
 $total_initial_paid = $initial_payment_data['total_initial_paid'] ?? 0;
 

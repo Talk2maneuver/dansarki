@@ -129,17 +129,14 @@ if(isset($_GET['del']))
                                 <thead>
                                     <tr>
                                       <th>S/N</th>
-                     <th>Branch ID</th>
-                     <th>Customer Name</th>
-                       <th>Gender</th>
-                     <th>Phone Number</th>
-                    <th>Address</th>
-                   
-                    <th>Creation Date</th>
-                    <th>Updation Date</th>
-                    <th>Action</th>
-                   
-                                       
+                                     <th class="d-none d-md-table-cell">Branch ID</th>
+                                     <th>Customer Name</th>
+                                     <th class="d-none d-md-table-cell">Gender</th>
+                                     <th>Phone Number</th>
+                                     <th class="d-none d-md-table-cell">Address</th>
+                                     <th class="d-none d-md-table-cell">Creation Date</th>
+                                     <th class="d-none d-md-table-cell">Updation Date</th>
+                                     <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -159,30 +156,30 @@ if(isset($_GET['del']))
     ?>
                          <tr>
                         <td class="center"><?php echo $cnt;?>.</td>
-                        <td class="hidden-xs"><?php echo $row['facilityID'];?></td>
-                        <td class="hidden-xs"><?php echo $row['name'];?></td>
-                        <td class="hidden-xs"><?php echo $row['gender'];?></td>
-                        <td class="hidden-xs"><?php echo $row['phone'];?></td>
-                        <td class="hidden-xs"><?php echo $row['address'];?></td>
+                        <td class="d-none d-md-table-cell"><?php echo $row['facilityID'];?></td>
+                        <td><?php echo $row['name'];?></td>
+                        <td class="d-none d-md-table-cell"><?php echo $row['gender'];?></td>
+                        <td><?php echo $row['phone'];?></td>
+                        <td class="d-none d-md-table-cell"><?php echo $row['address'];?></td>
                          
-                         <td class="hidden-xs"><?php echo $row['creation'];?></td>
-                         <td class="hidden-xs"><?php echo $row['updation'];?></td>
+                         <td class="d-none d-md-table-cell"><?php echo $row['creation'];?></td>
+                         <td class="d-none d-md-table-cell"><?php echo $row['updation'];?></td>
                          
-                       
+                        
                         </td>
                         
                          <td>
-                        <div class="visible-md visible-lg hidden-sm hidden-xs">
+                         <div>
                         
                       
-                        <a href="view-customer?id=<?php echo $row['id'];?>" class="btn btn-primary" tooltip-placement="top" tooltip="View">View</a>
-                        <a href="edit-customer?id=<?php echo $row['id'];?>" class="btn btn-primary" tooltip-placement="top" tooltip="Edit">Edit</a>
+                        <a href="view-customer?id=<?php echo $row['id'];?>" class="btn btn-primary btn-sm mb-1" tooltip-placement="top" tooltip="View">View</a>
+                        <a href="edit-customer?id=<?php echo $row['id'];?>" class="btn btn-primary btn-sm mb-1" tooltip-placement="top" tooltip="Edit">Edit</a>
 
                     
-  <a href="customer?id=<?php echo $row['id']?>&del=delete" onClick="return confirm('Are you sure you want to delete?')"class="btn btn-danger" tooltip-placement="top" tooltip="Remove">Delete</a>
+  <a href="customer?id=<?php echo $row['id']?>&del=delete" onClick="return confirm('Are you sure you want to delete?')"class="btn btn-danger btn-sm mb-1" tooltip-placement="top" tooltip="Remove">Delete</a>
                         </div>
                        
-                        </div></td>
+                        </td>
                       </tr>
 
                       <?php 

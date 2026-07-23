@@ -134,12 +134,12 @@ else
                 }
 
                 $facilityID = $_SESSION['facilityID'];
-                $facility_q = "";
+                $facility_q = !empty($facilityID) ? "AND facilityID='$facilityID'" : "";
 
                 // 1. Total Outstanding (Filtered) - Using weekly.php logic (from orders table)
                 $filteredOutstandingQuery = "SELECT SUM(debt) as debt_total FROM (
                                                 SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders 
-                                                WHERE 1=1 $date_filter_orders $facility_q 
+                                                WHERE deleted_flag = 0 $date_filter_orders $facility_q 
                                                 AND CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) 
                                                 GROUP BY orderId
                                               ) as t";
@@ -149,7 +149,7 @@ else
                 // 2. Today's Outstanding
                 $todaysOutstandingQuery = "SELECT SUM(debt) as debt_total FROM (
                                                 SELECT orderId, (CAST(net_total AS DECIMAL(15,2)) - CAST(amount_paid AS DECIMAL(15,2))) as debt FROM orders 
-                                                WHERE DATE(creation) = CURDATE() $facility_q 
+                                                WHERE deleted_flag = 0 AND DATE(creation) = CURDATE() $facility_q 
                                                 AND CAST(net_total AS DECIMAL(15,2)) > CAST(amount_paid AS DECIMAL(15,2)) 
                                                 GROUP BY orderId
                                               ) as t";
@@ -159,7 +159,7 @@ else
                 // 3. Amount Paid Today (Initial payments on orders today + Deposits today)
                 $todaysOrdersPaidQuery = "SELECT SUM(paid) as paid_total FROM (
                                             SELECT orderId, (CAST(amount_paid AS DECIMAL(15,2)) - CAST(change_given AS DECIMAL(15,2))) as paid FROM orders 
-                                            WHERE DATE(creation) = CURDATE() $facility_q 
+                                            WHERE deleted_flag = 0 AND DATE(creation) = CURDATE() $facility_q 
                                             GROUP BY orderId
                                          ) as t";
                 $todaysDepositsPaidQuery = "SELECT SUM(d.amount) as deposit_total FROM deposit_history d 
@@ -247,7 +247,7 @@ while ($row = mysqli_fetch_array($result)) {
     // Calculate today's payments for this specific customer
     $custOrdersPaidQuery = "SELECT SUM(paid) as paid_total FROM (
                                 SELECT orderId, (CAST(amount_paid AS DECIMAL(15,2)) - CAST(change_given AS DECIMAL(15,2))) as paid FROM orders 
-                                WHERE customerID='$cid' AND DATE(creation) = CURDATE() $facility_q 
+                                WHERE deleted_flag = 0 AND customerID='$cid' AND DATE(creation) = CURDATE() $facility_q 
                                 GROUP BY orderId
                              ) as t";
     $custOrdersPaidResult = mysqli_query($con, $custOrdersPaidQuery);
@@ -262,15 +262,15 @@ while ($row = mysqli_fetch_array($result)) {
 
     // Calculate dynamic balance for this customer to match view-customer
     $facilityID = $_SESSION['facilityID'];
-    $cust_sales_query = mysqli_query($con, "SELECT SUM(CAST(subtotal AS DECIMAL(10,2)) - (CAST(item_discount AS DECIMAL(10,2)) * CAST(quantity AS INT))) as total_sales FROM orders WHERE customerID='$cid' AND facilityID='$facilityID'");
+    $cust_sales_query = mysqli_query($con, "SELECT SUM(CAST(subtotal AS DECIMAL(10,2)) - (CAST(item_discount AS DECIMAL(10,2)) * CAST(quantity AS INT))) as total_sales FROM orders WHERE deleted_flag = 0 AND customerID='$cid' AND facilityID='$facilityID'");
     $cust_sales_data = mysqli_fetch_array($cust_sales_query);
     $cust_total_sales = $cust_sales_data['total_sales'] ?? 0;
 
-    $cust_discount_query = mysqli_query($con, "SELECT SUM(CAST(discount AS DECIMAL(10,2))) as total_discount FROM (SELECT orderID, discount FROM orders WHERE customerID='$cid' AND facilityID='$facilityID' GROUP BY orderID) as t");
+    $cust_discount_query = mysqli_query($con, "SELECT SUM(CAST(discount AS DECIMAL(10,2))) as total_discount FROM (SELECT orderID, discount FROM orders WHERE deleted_flag = 0 AND customerID='$cid' AND facilityID='$facilityID' GROUP BY orderID) as t");
     $cust_discount_data = mysqli_fetch_array($cust_discount_query);
     $cust_total_discount = $cust_discount_data['total_discount'] ?? 0;
 
-    $cust_initial_payment_query = mysqli_query($con, "SELECT SUM(CAST(amount_paid AS DECIMAL(10,2))) as total_initial_paid FROM (SELECT orderID, amount_paid FROM orders WHERE customerID='$cid' AND facilityID='$facilityID' GROUP BY orderID) as t");
+    $cust_initial_payment_query = mysqli_query($con, "SELECT SUM(CAST(amount_paid AS DECIMAL(10,2))) as total_initial_paid FROM (SELECT orderID, amount_paid FROM orders WHERE deleted_flag = 0 AND customerID='$cid' AND facilityID='$facilityID' GROUP BY orderID) as t");
     $cust_initial_payment_data = mysqli_fetch_array($cust_initial_payment_query);
     $cust_total_initial_paid = $cust_initial_payment_data['total_initial_paid'] ?? 0;
 
@@ -280,10 +280,10 @@ while ($row = mysqli_fetch_array($result)) {
 
     $cust_actual_balance = $cust_total_sales - $cust_total_discount - $cust_total_initial_paid - $cust_actual_total_deposits;
 ?>
-                         <tr>
+                          <tr>
                           <td class="center"><?php echo $cnt;?>.</td>
-                          <td class="hidden-xs"><?php echo $row['Customer'];?></td>
-                          <td class="hidden-xs">₦<?php echo number_format($todayTotalPaidForCust);?></td>
+                          <td><?php echo $row['Customer'];?></td>
+                          <td>₦<?php echo number_format($todayTotalPaidForCust);?></td>
                           <td>
                             <?php if ($cust_actual_balance == 0): ?>
                                 <span class="badge badge-success">Clear</span>
@@ -294,8 +294,8 @@ while ($row = mysqli_fetch_array($result)) {
                             <?php endif; ?>
                           </td>
                           <td>
-                            <div class="visible-md visible-lg hidden-sm hidden-xs">
-                               <a href="deposit?id=<?php echo $row['customerID'];?>" class="btn btn-primary" tooltip-placement="top" tooltip="Edit">Add Deposit</a>
+                            <div>
+                               <a href="deposit?id=<?php echo $row['customerID'];?>" class="btn btn-primary btn-sm" tooltip-placement="top" tooltip="Edit">Add Deposit</a>
                             </div>
                           </td>
                         </tr>

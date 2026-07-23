@@ -64,14 +64,14 @@ if(strlen($_SESSION['email'])==0) {
                                         <input type="date" class="form-control" name="to_date" 
                                                value="<?php echo isset($_GET['to_date']) ? $_GET['to_date'] : date('Y-m-d'); ?>">
                                     </div>
-                            <div class="col-md-4">
-                                <button type="submit" class="btn btn-primary">Filter</button>
-                                <a href="sales_report" class="btn btn-danger">Reset</a>
-                                <a href="weekly" class="btn btn-secondary">Back</a>
-                            </div>
+                                    <div class="col-md-4 mt-3 mt-md-0">
+                                        <button type="submit" class="btn btn-primary">Filter</button>
+                                        <a href="sales_report" class="btn btn-danger">Reset</a>
+                                        <a href="weekly" class="btn btn-secondary">Back</a>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                    </form>
-                </div>
 
                 <div class="widget-content widget-content-area br-6">
                     <?php
@@ -95,9 +95,10 @@ if(strlen($_SESSION['email'])==0) {
                         JOIN (
                             SELECT orderID, SUM(CAST(subtotal AS DECIMAL(15,2))) as order_gross 
                             FROM orders 
+                            WHERE deleted_flag = 0
                             GROUP BY orderID
                         ) t ON o.orderID = t.orderID
-                        WHERE DATE(o.creation) BETWEEN '$from_date' AND '$to_date' $where_facility
+                        WHERE o.deleted_flag = 0 AND DATE(o.creation) BETWEEN '$from_date' AND '$to_date' $where_facility
                         GROUP BY o.item
                         ORDER BY total_quantity DESC
                     ";

@@ -151,61 +151,58 @@ return true;
         else if($msg){?><strong style="color:green; font-size:18px;  margin-top: 15px;"> Staff Added Successfully</strong><?php }?>
 
                             <table id="html5-extension" class="table table-hover non-hover" style="width:100%">
-                                <thead>
-                                <tr>
-                                       <th>S/N</th>
-                                       <th>Branch ID</th>
-                     <th>Staff Name</th>
-                      <th>Email Address</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th>Creation Date</th>
-                    <th>Updation Date</th>
-                    <th>Action</th>
-                   
-                                       
-                                    </tr>
-                                </thead>
-                                <tbody>
-                      <?php
-                          $sql = mysqli_query($con, "SELECT * FROM facility WHERE role != 'admin' AND deleted_flag = 0");
-                          $cnt=1;
-                          while($row=mysqli_fetch_array($sql))
-                          {
-                          ?>
-                          <tr>
-                        <td class="center"><?php echo $cnt;?>.</td>
-                        <td class="hidden-xs">
-                             <?php echo $row['facilityID']; ?>
-                        </td>
-                        <td class="hidden-xs"><?php echo $row['name'];?></td>
-                        <td class="hidden-xs"><?php echo $row['email'];?></td>
-                        <td class="hidden-xs"><?php echo $row['role'];?></td>
-                         <td class="hidden-xs"><?php if ($row['status'] == 0) {
-                           ?><b style="color:red" >Suspended</b><?php
-                         }else if ($row['status'] == 1){
+                                 <thead>
+                                 <tr>
+                                        <th>S/N</th>
+                                        <th class="d-none d-md-table-cell">Branch ID</th>
+                                        <th>Staff Name</th>
+                                        <th class="d-none d-sm-table-cell">Email Address</th>
+                                        <th class="d-none d-md-table-cell">Role</th>
+                                        <th>Status</th>
+                                        <th class="d-none d-md-table-cell">Creation Date</th>
+                                        <th class="d-none d-md-table-cell">Updation Date</th>
+                                        <th>Action</th>
+                                     </tr>
+                                 </thead>
+                                 <tbody>
+                       <?php
+                           $sql = mysqli_query($con, "SELECT * FROM facility WHERE role != 'admin' AND deleted_flag = 0");
+                           $cnt=1;
+                           while($row=mysqli_fetch_array($sql))
+                           {
+                           ?>
+                           <tr>
+                         <td class="center"><?php echo $cnt;?>.</td>
+                         <td class="d-none d-md-table-cell">
+                              <?php echo $row['facilityID']; ?>
+                         </td>
+                         <td><?php echo $row['name'];?></td>
+                         <td class="d-none d-sm-table-cell"><?php echo $row['email'];?></td>
+                         <td class="d-none d-md-table-cell"><?php echo $row['role'];?></td>
+                          <td><?php if ($row['status'] == 0) {
+                            ?><b style="color:red" >Suspended</b><?php
+                          }else if ($row['status'] == 1){
 
-                         ?><b style="color:green">Active</b><?php }?></td>
-                         <td class="hidden-xs"><?php echo $row['creation'];?></td>
-                         <td class="hidden-xs"><?php echo $row['updation'];?></td>
+                          ?><b style="color:green">Active</b><?php }?></td>
+                          <td class="d-none d-md-table-cell"><?php echo $row['creation'];?></td>
+                          <td class="d-none d-md-table-cell"><?php echo $row['updation'];?></td>
+                          
                          
-                        
-                         <td>
-                        <div class="visible-md visible-lg hidden-sm hidden-xs">
-                        
-                        <?php if ($row['status'] == 0){
-                          ?><a href="staff?id=<?php echo $row['id']?>&sus=delete" onClick="return confirm('Are you sure you want to acivate account?')"class="btn btn-danger" tooltip-placement="top" tooltip="Remove">Activate</a><?php
-                        }else if ($row['status'] == 1){
-                          ?> <a href="staff?id=<?php echo $row['id']?>&sus=delete" onClick="return confirm('Are you sure you want to suspend account?')"class="btn btn-danger" tooltip-placement="top" tooltip="Remove">Suspend</a><?php
-                        }?>
-                        <a href="edit-staff?id=<?php echo $row['id'];?>" class="btn btn-primary" tooltip-placement="top" tooltip="Edit">Edit</a>
+                          <td>
+                          <div>
+                         
+                         <?php if ($row['status'] == 0){
+                           ?><a href="staff?id=<?php echo $row['id']?>&sus=delete" onClick="return confirm('Are you sure you want to acivate account?')"class="btn btn-danger btn-sm mb-1" tooltip-placement="top" tooltip="Remove">Activate</a><?php
+                         }else if ($row['status'] == 1){
+                           ?> <a href="staff?id=<?php echo $row['id']?>&sus=delete" onClick="return confirm('Are you sure you want to suspend account?')"class="btn btn-danger btn-sm mb-1" tooltip-placement="top" tooltip="Remove">Suspend</a><?php
+                         }?>
+                         <a href="edit-staff?id=<?php echo $row['id'];?>" class="btn btn-primary btn-sm mb-1" tooltip-placement="top" tooltip="Edit">Edit</a>
 
-                    
-  <a href="staff?id=<?php echo $row['id']?>&del=delete" onClick="return confirm('Are you sure you want to delete?')"class="btn btn-danger" tooltip-placement="top" tooltip="Remove">Delete</a>
-                        </div>
-                       
-                        </div></td>
-                      </tr>
+                     
+   <a href="staff?id=<?php echo $row['id']?>&del=delete" onClick="return confirm('Are you sure you want to delete?')"class="btn btn-danger btn-sm mb-1" tooltip-placement="top" tooltip="Remove">Delete</a>
+                          </div>
+                          </td>
+                        </tr>
 
                       <?php 
 $cnt=$cnt+1; 

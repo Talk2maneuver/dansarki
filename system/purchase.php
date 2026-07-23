@@ -142,50 +142,46 @@ else
                         <div class="widget-content widget-content-area br-6">
 
                              
-                            <table id="html5-extension" class="table table-hover non-hover" style="width:100%">
-                                <thead>
+                            <table id="html5-extension" class="table table-hover non-hover" style="width:100%">                                <thead>
                                     <tr>
                                         <th>S/N</th>
                                         <th>Stock Name</th>
-                                        <th>For</th>
-                                        <th>Purchase From</th>
-                                        <th>Amount Paid</th>
+                                        <th class="d-none d-md-table-cell">For</th>
+                                        <th class="d-none d-md-table-cell">Purchase From</th>
+                                        <th class="d-none d-sm-table-cell">Amount Paid</th>
                                         <th>Balance</th>
                                         <th>Total Cost</th>
-                                        <th>Purchase Date</th>
+                                        <th class="d-none d-md-table-cell">Purchase Date</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                  <?php
-                                  $facilityID = $_SESSION['facilityID'];
-                                  $sql=mysqli_query($con,"select * from purchase_history where deleted_flag = 0 AND DATE(purchase_date) BETWEEN '$from_date' AND '$to_date'");
-                                  $cnt=1;
-                                  while($row=mysqli_fetch_array($sql))
-                                  {
-                                  ?>
-                                  <tr>
-                                    <td class="center"><?php echo $cnt;?>.</td>
-                                    <td class="hidden-xs"><?php echo $row['stock_name'];?></td>
-                                    <td class="hidden-xs"><?php echo $row['for_desc'];?></td>
-                                    <td class="hidden-xs"><?php echo $row['purchase_from'];?></td>
-                                    <td class="hidden-xs">₦<?php echo number_format($row['amount_paid']);?></td>
-                                    <td class="text-danger">₦<?php echo number_format($row['balance']);?></td>
-                                    <td class="hidden-xs">₦<?php echo number_format($row['total_cost']);?></td>
-                                    <td class="hidden-xs"><?php echo $row['purchase_date'];?></td>
-                                    <td>
-                                        <div class="visible-md visible-lg hidden-sm hidden-xs">
-                                            <a href="view-purchase-details?id=<?php echo $row['id']?>" class="btn btn-warning btn-sm">View Dashboard</a> 
-                                            <a href="edit-purchase?id=<?php echo $row['id']?>" class="btn btn-primary btn-sm">Edit</a>
-                                            <a href="purchase-receipt?id=<?php echo $row['id']; ?>" class="btn btn-success btn-sm" target="_blank">Purchase Receipt</a>
-                                            <a href="purchase-deposit?id=<?php echo $row['id']?>" class="btn btn-info btn-sm">Add Deposit</a>
-                                            <a href="purchase?id=<?php echo $row['id']?>&del=delete" onClick="return confirm('Are you sure you want to delete?')" class="btn btn-danger btn-sm" tooltip-placement="top" tooltip="Remove">Delete</a>
-                                        </div>
-                                    </td>
-                                  </tr>
-                        
-                        
-                      </tr>
+                                   <?php
+                                   $facilityID = $_SESSION['facilityID'];
+                                   $sql=mysqli_query($con,"select * from purchase_history where deleted_flag = 0 AND DATE(purchase_date) BETWEEN '$from_date' AND '$to_date'");
+                                   $cnt=1;
+                                   while($row=mysqli_fetch_array($sql))
+                                   {
+                                   ?>
+                                   <tr>
+                                     <td class="center"><?php echo $cnt;?>.</td>
+                                     <td><?php echo $row['stock_name'];?></td>
+                                     <td class="d-none d-md-table-cell"><?php echo $row['for_desc'];?></td>
+                                     <td class="d-none d-md-table-cell"><?php echo $row['purchase_from'];?></td>
+                                     <td class="d-none d-sm-table-cell">₦<?php echo number_format($row['amount_paid']);?></td>
+                                     <td class="text-danger">₦<?php echo number_format($row['balance']);?></td>
+                                     <td>₦<?php echo number_format($row['total_cost']);?></td>
+                                     <td class="d-none d-md-table-cell"><?php echo $row['purchase_date'];?></td>
+                                     <td>
+                                         <div>
+                                             <a href="view-purchase-details?id=<?php echo $row['id']?>" class="btn btn-warning btn-sm mb-1">View Dashboard</a> 
+                                             <a href="edit-purchase?id=<?php echo $row['id']?>" class="btn btn-primary btn-sm mb-1">Edit</a>
+                                             <a href="purchase-receipt?id=<?php echo $row['id']; ?>" class="btn btn-success btn-sm mb-1" target="_blank">Purchase Receipt</a>
+                                             <a href="purchase-deposit?id=<?php echo $row['id']?>" class="btn btn-info btn-sm mb-1">Add Deposit</a>
+                                             <a href="purchase?id=<?php echo $row['id']?>&del=delete" onClick="return confirm('Are you sure you want to delete?')" class="btn btn-danger btn-sm mb-1" tooltip-placement="top" tooltip="Remove">Delete</a>
+                                         </div>
+                                     </td>
+                                   </tr>
 
                       <?php 
 $cnt=$cnt+1; 

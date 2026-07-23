@@ -98,9 +98,7 @@ return true;
         <!--  BEGIN CONTENT AREA  -->
        <div id="content" class="main-content">
             <div class="layout-px-spacing">
-
-               
-
+                <div class="row">
                     <div class="col-xl-5 col-lg-6 col-md-7 col-sm-12 layout-top-spacing">
 
                         <div class="skills layout-spacing ">
@@ -125,7 +123,7 @@ return true;
                         <span style="color:red">*</span><br>
                         <input type="text" class="form-control" required name="confirm">
                       </div>
-                      <div class="modal-footer">
+                       <div class="modal-footer">
                   <button type="submit" class="btn btn-primary" name="update" id="update">Change</button>
                 </div>
                </div>
@@ -134,6 +132,8 @@ return true;
 
                           
 
+                </div>
+                </div>
                 </div>
                 </div>
          <?php include('footer.php'); ?>

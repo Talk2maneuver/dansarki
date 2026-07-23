@@ -116,15 +116,13 @@ $real = $x_row['selling'];
                         <div class="widget-content widget-content-area br-6">
 
                              
-                            <table id="html5-extension" class="table table-hover non-hover" style="width:100%">
-                                <thead>
+                            <table id="html5-extension" class="table table-hover non-hover" style="width:100%">                                <thead>
                                     <tr>
-                                       <th>S/N</th>
-                    <th>Name</th>
-                    <th>Purchase From</th>
-                    <th>Income</th>
-                    <th>Action</th>
-                                       
+                                        <th>S/N</th>
+                                        <th>Name</th>
+                                        <th class="d-none d-md-table-cell">Purchase From</th>
+                                        <th>Income</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -135,25 +133,19 @@ $cnt=1;
 while($row=mysqli_fetch_array($sql))
 {
 ?>
-                         <tr>
-                        <td class="center"><?php echo $cnt;?>.</td>
-                        <td class="hidden-xs"><?php echo $row['month']." ".$row['year'];?></td>
-                        <td class="hidden-xs"><?php echo $row['purchase_from'];?></td>
-                        <td class="hidden-xs">₦<?php echo number_format($row['income']);?></td>
-                       
-                        <td>
-                        <div class="visible-md visible-lg hidden-sm hidden-xs">
+                          <tr>
+                         <td class="center"><?php echo $cnt;?>.</td>
+                         <td><?php echo $row['month']." ".$row['year'];?></td>
+                         <td class="d-none d-md-table-cell"><?php echo $row['purchase_from'];?></td>
+                         <td>₦<?php echo number_format($row['income']);?></td>
                         
-
-                      <a href="view-purchase?id=<?php echo $row['mo'];?>&ye=<?php echo $row['year'];?> " class="btn btn-primary" tooltip-placement="top" tooltip="Edit">View Purchase Breakdown</a>
-                      <a href="total_purchase?mo=<?php echo $row['mo']?>&ye=<?php echo $row['year']?>&del=delete" onClick="return confirm('Are you sure you want to delete all purchases for this month?')" class="btn btn-danger" tooltip-placement="top" tooltip="Remove">Delete</a>
-
-                   
-                        </div>
-                       
-                        </div></td>
-                         
-                      </tr>
+                         <td>
+                         <div>
+                          <a href="view-purchase?id=<?php echo $row['mo'];?>&ye=<?php echo $row['year'];?> " class="btn btn-primary btn-sm mb-1" tooltip-placement="top" tooltip="Edit">View Purchase Breakdown</a>
+                          <a href="total_purchase?mo=<?php echo $row['mo']?>&ye=<?php echo $row['year']?>&del=delete" onClick="return confirm('Are you sure you want to delete all purchases for this month?')" class="btn btn-danger btn-sm mb-1" tooltip-placement="top" tooltip="Remove">Delete</a>
+                         </div>
+                         </td>
+                       </tr>
 
                       <?php 
 $cnt=$cnt+1; 

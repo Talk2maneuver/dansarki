@@ -123,11 +123,11 @@ else
                                 <thead>
                                     <tr>
                                         <th>S/N</th>
-                                        <th>Branch ID</th>
+                                        <th class="d-none d-md-table-cell">Branch ID</th>
                                         <th>Month</th>
-                                        <th>Cash</th>
-                                        <th>POS</th>
-                                        <th>Transfer</th>
+                                        <th class="d-none d-sm-table-cell">Cash</th>
+                                        <th class="d-none d-sm-table-cell">POS</th>
+                                        <th class="d-none d-sm-table-cell">Transfer</th>
                                         <th>Total Income</th>
                                         <th>Action</th>
                                     </tr>
@@ -164,16 +164,16 @@ else
                                     ?>
                                     <tr>
                                         <td class="center"><?php echo $cnt; ?>.</td>
-                                        <td class="hidden-xs"><?php echo htmlspecialchars($row['facilityID']); ?></td>
-                                        <td class="hidden-xs"><?php echo htmlspecialchars($row['month'] . " " . $row['year']); ?></td>
-                                        <td class="hidden-xs">₦<?php echo number_format($row['cash_total'] ?? 0); ?></td>
-                                        <td class="hidden-xs">₦<?php echo number_format($row['pos_total'] ?? 0); ?></td>
-                                        <td class="hidden-xs">₦<?php echo number_format($row['transfer_total'] ?? 0); ?></td>
-                                        <td class="hidden-xs">₦<?php echo number_format($row['income']); ?></td>
+                                        <td class="d-none d-md-table-cell"><?php echo htmlspecialchars($row['facilityID']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['month'] . " " . $row['year']); ?></td>
+                                        <td class="d-none d-sm-table-cell">₦<?php echo number_format($row['cash_total'] ?? 0); ?></td>
+                                        <td class="d-none d-sm-table-cell">₦<?php echo number_format($row['pos_total'] ?? 0); ?></td>
+                                        <td class="d-none d-sm-table-cell">₦<?php echo number_format($row['transfer_total'] ?? 0); ?></td>
+                                        <td>₦<?php echo number_format($row['income']); ?></td>
                                         <td>
-                                            <div class="visible-md visible-lg hidden-sm hidden-xs">
+                                            <div>
                                                 <a href="view-sales?id=<?php echo $row['mo']; ?>&ye=<?php echo $row['year']; ?>" 
-                                                   class="btn btn-primary" 
+                                                   class="btn btn-primary btn-sm" 
                                                    tooltip-placement="top" 
                                                    tooltip="View">View Breakdown</a>
                                             </div>

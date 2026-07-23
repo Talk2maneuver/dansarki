@@ -9,6 +9,8 @@ if (empty($_SESSION['email'])) {
     exit;
 }
 
+$facilityID = $_SESSION['facilityID'] ?? null;
+
 
 
 ?>
@@ -47,6 +49,7 @@ if (empty($_SESSION['email'])) {
                 <div class="spinner-grow align-self-center"></div>
             </div>
         </div>
+    </div>
     </div>
 
     <?php include('header.php'); ?>
@@ -103,9 +106,14 @@ if (empty($_SESSION['email'])) {
                                 <div class="wallet-balance">
                                     <p>Total Sales</p>
                                     <?php
-                                    $yearly_sales_query = $con->query("SELECT SUM(net_total) as total FROM orders");
+                                    if ($facilityID) {
+                                        $yearly_sales_query = $con->query("SELECT SUM(net_total) as total FROM orders WHERE deleted_flag = 0 AND facilityID = '$facilityID'");
+                                        $yearly_expense_query = $con->query("SELECT SUM(price) as total FROM expense WHERE deleted_flag = 0 AND facilityID = '$facilityID'");
+                                    } else {
+                                        $yearly_sales_query = $con->query("SELECT SUM(net_total) as total FROM orders WHERE deleted_flag = 0");
+                                        $yearly_expense_query = $con->query("SELECT SUM(price) as total FROM expense WHERE deleted_flag = 0");
+                                    }
                                     $yearly_sales_row = $yearly_sales_query->fetch_assoc();
-                                    $yearly_expense_query = $con->query("SELECT SUM(price) as total FROM expense");
                                     $yearly_expense_row = $yearly_expense_query->fetch_assoc();
                                     ?>
                                     <h5><span class="w-currency">₦</span><?php echo number_format(($yearly_sales_row['total'] ?? 0) - ($yearly_expense_row['total'] ?? 0)); ?></h5>
@@ -115,22 +123,22 @@ if (empty($_SESSION['email'])) {
                                 <?php
                                 // Yearly Payment Breakdown
                                 if ($facilityID) {
-                                    $yearly_payment_query = $con->query("SELECT SUM(cash) as cash_total, SUM(pos) as pos_total, SUM(transfer) as transfer_total FROM orders WHERE facilityID = '$facilityID'");
+                                    $yearly_payment_query = $con->query("SELECT SUM(cash) as cash_total, SUM(pos) as pos_total, SUM(transfer) as transfer_total FROM orders WHERE deleted_flag = 0 AND facilityID = '$facilityID'");
                                 } else {
-                                    $yearly_payment_query = $con->query("SELECT SUM(cash) as cash_total, SUM(pos) as pos_total, SUM(transfer) as transfer_total FROM orders");
+                                    $yearly_payment_query = $con->query("SELECT SUM(cash) as cash_total, SUM(pos) as pos_total, SUM(transfer) as transfer_total FROM orders WHERE deleted_flag = 0");
                                 }
                                 
                                 $yearly_payment_row = $yearly_payment_query->fetch_assoc();
                                 
                                 $month = date('m');
                                 if ($facilityID) {
-                                    $monthly_sales_query = $con->query("SELECT SUM(subtotal) as total FROM orders WHERE MONTH(creation) = '$month'");
-                                    $monthly_expense_query = $con->query("SELECT SUM(price) as total FROM expense WHERE MONTH(creation) = '$month'");
-                                    $monthly_payment_query = $con->query("SELECT SUM(cash) as cash_total, SUM(pos) as pos_total, SUM(transfer) as transfer_total FROM orders WHERE MONTH(creation) = '$month'");
+                                    $monthly_sales_query = $con->query("SELECT SUM(subtotal) as total FROM orders WHERE deleted_flag = 0 AND MONTH(creation) = '$month' AND facilityID = '$facilityID'");
+                                    $monthly_expense_query = $con->query("SELECT SUM(price) as total FROM expense WHERE deleted_flag = 0 AND MONTH(creation) = '$month' AND facilityID = '$facilityID'");
+                                    $monthly_payment_query = $con->query("SELECT SUM(cash) as cash_total, SUM(pos) as pos_total, SUM(transfer) as transfer_total FROM orders WHERE deleted_flag = 0 AND MONTH(creation) = '$month' AND facilityID = '$facilityID'");
                                 } else {
-                                    $monthly_sales_query = $con->query("SELECT SUM(subtotal) as total FROM orders WHERE MONTH(creation) = '$month'");
-                                    $monthly_expense_query = $con->query("SELECT SUM(price) as total FROM expense WHERE MONTH(creation) = '$month'");
-                                    $monthly_payment_query = $con->query("SELECT SUM(cash) as cash_total, SUM(pos) as pos_total, SUM(transfer) as transfer_total FROM orders WHERE MONTH(creation) = '$month'");
+                                    $monthly_sales_query = $con->query("SELECT SUM(subtotal) as total FROM orders WHERE deleted_flag = 0 AND MONTH(creation) = '$month'");
+                                    $monthly_expense_query = $con->query("SELECT SUM(price) as total FROM expense WHERE deleted_flag = 0 AND MONTH(creation) = '$month'");
+                                    $monthly_payment_query = $con->query("SELECT SUM(cash) as cash_total, SUM(pos) as pos_total, SUM(transfer) as transfer_total FROM orders WHERE deleted_flag = 0 AND MONTH(creation) = '$month'");
                                 }
                                 
                                 $monthly_sales_row = $monthly_sales_query->fetch_assoc();
@@ -139,13 +147,13 @@ if (empty($_SESSION['email'])) {
                                 
                                 $today = date('Y-m-d');
                                 if ($facilityID) {
-                                    $daily_sales_query = $con->query("SELECT SUM(subtotal) as total FROM orders WHERE DATE(creation) = '$today'");
-                                    $daily_expense_query = $con->query("SELECT SUM(price) as total FROM expense WHERE DATE(creation) = '$today'");
-                                    $daily_payment_query = $con->query("SELECT SUM(cash) as cash_total, SUM(pos) as pos_total, SUM(transfer) as transfer_total FROM orders WHERE DATE(creation) = '$today'");
+                                    $daily_sales_query = $con->query("SELECT SUM(subtotal) as total FROM orders WHERE deleted_flag = 0 AND DATE(creation) = '$today' AND facilityID = '$facilityID'");
+                                    $daily_expense_query = $con->query("SELECT SUM(price) as total FROM expense WHERE deleted_flag = 0 AND DATE(creation) = '$today' AND facilityID = '$facilityID'");
+                                    $daily_payment_query = $con->query("SELECT SUM(cash) as cash_total, SUM(pos) as pos_total, SUM(transfer) as transfer_total FROM orders WHERE deleted_flag = 0 AND DATE(creation) = '$today' AND facilityID = '$facilityID'");
                                 } else {
-                                    $daily_sales_query = $con->query("SELECT SUM(subtotal) as total FROM orders WHERE DATE(creation) = '$today'");
-                                    $daily_expense_query = $con->query("SELECT SUM(price) as total FROM expense WHERE DATE(creation) = '$today'");
-                                    $daily_payment_query = $con->query("SELECT SUM(cash) as cash_total, SUM(pos) as pos_total, SUM(transfer) as transfer_total FROM orders WHERE DATE(creation) = '$today'");
+                                    $daily_sales_query = $con->query("SELECT SUM(subtotal) as total FROM orders WHERE deleted_flag = 0 AND DATE(creation) = '$today'");
+                                    $daily_expense_query = $con->query("SELECT SUM(price) as total FROM expense WHERE deleted_flag = 0 AND DATE(creation) = '$today'");
+                                    $daily_payment_query = $con->query("SELECT SUM(cash) as cash_total, SUM(pos) as pos_total, SUM(transfer) as transfer_total FROM orders WHERE deleted_flag = 0 AND DATE(creation) = '$today'");
                                 }
                                 
                                 $daily_sales_row = $daily_sales_query->fetch_assoc();
@@ -219,12 +227,12 @@ if (empty($_SESSION['email'])) {
                                 </thead>
                                 <tbody>
                                     <?php
-                                    if ($facilityID) {
-                                        $sql = $con->query("SELECT * FROM orders WHERE DATE(creation) = '$today' AND facilityID = '$facilityID' ORDER BY creation DESC");
-                                    } else {
-                                        $sql = $con->query("SELECT * FROM orders WHERE DATE(creation) = '$today' ORDER BY creation DESC");
-                                    }
-                                    $cnt = 1;
+                                     if ($facilityID) {
+                                         $sql = $con->query("SELECT * FROM orders WHERE deleted_flag = 0 AND DATE(creation) = '$today' AND facilityID = '$facilityID' ORDER BY creation DESC");
+                                     } else {
+                                         $sql = $con->query("SELECT * FROM orders WHERE deleted_flag = 0 AND DATE(creation) = '$today' ORDER BY creation DESC");
+                                     }
+                                     $cnt = 1;
                                     $currentOrderID = null;
                                     $discountShown = false;
 
